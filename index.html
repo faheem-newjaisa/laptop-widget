@@ -3,83 +3,458 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Laptop Comparison Widget</title>
+  <title>NewJaisa AI Laptop Reasoning Widget</title>
   <style>
+    * { box-sizing: border-box; }
+
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f5f5f5;
+      background: #f4f7fb;
+      color: #111827;
     }
 
-    .widget {
-      max-width: 420px;
+    .page {
+      max-width: 1200px;
       margin: auto;
+      padding: 28px 18px 50px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: white;
+      border-radius: 22px;
+      padding: 28px;
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #d1d5db;
+      line-height: 1.6;
+    }
+
+    .toolbar, .card {
       background: white;
-      border-radius: 14px;
+      border-radius: 18px;
       padding: 20px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
     }
 
-    h2 {
-      margin-top: 0;
+    .toolbar {
+      margin-bottom: 22px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #374151;
+    }
+
+    select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      font-size: 15px;
+    }
+
+    button {
+      padding: 14px 18px;
+      background: #111827;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .grid-top {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .title {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+
+    .muted {
+      color: #6b7280;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .section-title {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .spec-item {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .spec-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .spec-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .headline {
       font-size: 22px;
+      margin: 0 0 14px;
     }
 
-    .prices p, .copy p {
+    .value-box {
+      background: #ecfdf5;
+      color: #065f46;
+      padding: 14px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .value-summary {
       margin: 8px 0;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 14px 12px;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 13px;
+      color: #6b7280;
+      text-transform: uppercase;
     }
 
     ul {
+      margin: 0;
       padding-left: 18px;
     }
 
-    .save {
-      font-weight: bold;
-      margin-top: 12px;
+    li {
+      margin-bottom: 10px;
+      line-height: 1.5;
+      color: #374151;
     }
 
-    .cta {
-      display: inline-block;
-      margin-top: 14px;
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill {
+      background: #f3f4f6;
       padding: 10px 14px;
-      background: black;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .footer {
+      background: #111827;
       color: white;
-      border-radius: 8px;
+      border-radius: 20px;
+      padding: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .footer h3 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .footer p {
+      margin: 0;
+      color: #d1d5db;
+      line-height: 1.6;
+    }
+
+    .footer a {
       text-decoration: none;
+      background: white;
+      color: #111827;
+      padding: 13px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status {
+      margin-top: 10px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .error {
+      color: #b91c1c;
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .toolbar, .grid-top, .grid-2, .footer {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+
+      .spec-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .title {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="widget">
-    <h2 id="headline">Loading comparison...</h2>
-
-    <div class="prices">
-      <p><strong>Amazon:</strong> <span id="amazon-price">-</span></p>
-      <p><strong>Flipkart:</strong> <span id="flipkart-price">-</span></p>
-      <p><strong>Our Price:</strong> <span id="our-price">-</span></p>
+  <div class="page">
+    <div class="hero">
+      <h1>AI Laptop Reasoning Demo</h1>
+      <p>
+        This demo takes only laptop model and specs as input, then generates
+        value positioning, use cases, laptop type, buying reasons, and advantages.
+      </p>
     </div>
 
-    <div class="copy">
-      <p id="price-line"></p>
-      <p class="save" id="savings-line"></p>
-      <ul id="reasons"></ul>
-      <a href="#" class="cta" id="cta">Buy Now</a>
+    <div class="toolbar">
+      <div>
+        <label for="laptopSelect">Select Laptop Model</label>
+        <select id="laptopSelect"></select>
+      </div>
+      <button id="reloadBtn">Generate Reasoning</button>
+    </div>
+
+    <div class="grid-top">
+      <div class="card">
+        <h2 class="title" id="productTitle">Loading...</h2>
+        <p class="muted" id="productSubtitle">Loading laptop specs...</p>
+
+        <div class="spec-grid" id="specGrid"></div>
+      </div>
+
+      <div class="card">
+        <h3 class="headline" id="headline">Loading AI reasoning...</h3>
+        <div class="value-box" id="priceTier">Loading value tier...</div>
+        <p class="value-summary" id="priceSummary"></p>
+        <p class="value-summary" id="buyerValue"></p>
+        <p class="status" id="statusText">Generating structured output...</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 22px;">
+      <h3 class="section-title">Price / Value Positioning</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Section</th>
+            <th>AI Output</th>
+          </tr>
+        </thead>
+        <tbody id="priceTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 class="section-title">Use Case</h3>
+        <ul id="useCaseList"></ul>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">Type of Laptop</h3>
+        <div class="pill-list" id="typeList"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 class="section-title">Why Buy from NewJaisa</h3>
+        <ul id="whyBuyList"></ul>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">Advantages</h3>
+        <ul id="advantagesList"></ul>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>
+        <h3 id="ctaTitle">Loading recommendation...</h3>
+        <p id="ctaText">Please wait...</p>
+      </div>
+      <a href="#" id="ctaButton">Explore</a>
     </div>
   </div>
 
   <script>
-    async function loadComparison() {
-      const payload = {
+    const laptops = {
+      dell7420: {
         product_title: "Dell Latitude 7420 Refurbished",
-        our_price: 27999,
-        amazon_price: 32999,
-        flipkart_price: 31499,
-        brand_name: "NewJaisa"
-      };
+        brand_name: "NewJaisa",
+        specs: {
+          processor: "Intel Core i5 11th Gen",
+          ram: "16 GB",
+          storage: "512 GB SSD",
+          display: "14 inch Full HD",
+          weight: "1.3 kg",
+          battery: "Good battery health",
+          os: "Windows 11 Pro"
+        }
+      },
+      hp840g5: {
+        product_title: "HP EliteBook 840 G5 Refurbished",
+        brand_name: "NewJaisa",
+        specs: {
+          processor: "Intel Core i5 8th Gen",
+          ram: "8 GB",
+          storage: "256 GB SSD",
+          display: "14 inch Full HD",
+          weight: "1.5 kg",
+          battery: "Decent battery backup",
+          os: "Windows 11 Pro"
+        }
+      },
+      thinkpadt480: {
+        product_title: "Lenovo ThinkPad T480 Refurbished",
+        brand_name: "NewJaisa",
+        specs: {
+          processor: "Intel Core i5 8th Gen",
+          ram: "8 GB",
+          storage: "512 GB SSD",
+          display: "14 inch Full HD",
+          weight: "1.6 kg",
+          battery: "Business-use battery profile",
+          os: "Windows 11 Pro"
+        }
+      },
+      macbookair: {
+        product_title: "MacBook Air Refurbished",
+        brand_name: "NewJaisa",
+        specs: {
+          processor: "Intel Core i5",
+          ram: "8 GB",
+          storage: "256 GB SSD",
+          display: "13.3 inch Retina",
+          weight: "1.29 kg",
+          battery: "Portable all-day usage profile",
+          os: "macOS"
+        }
+      }
+    };
 
-      document.getElementById("amazon-price").innerText = "₹" + payload.amazon_price;
-      document.getElementById("flipkart-price").innerText = "₹" + payload.flipkart_price;
-      document.getElementById("our-price").innerText = "₹" + payload.our_price;
+    const selectEl = document.getElementById("laptopSelect");
+    const reloadBtn = document.getElementById("reloadBtn");
+
+    Object.keys(laptops).forEach((key) => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = laptops[key].product_title;
+      selectEl.appendChild(option);
+    });
+
+    function fillSpecs(product) {
+      document.getElementById("productTitle").textContent = product.product_title;
+      document.getElementById("productSubtitle").textContent =
+        "Structured AI reasoning generated only from model and specs.";
+
+      const specGrid = document.getElementById("specGrid");
+      specGrid.innerHTML = "";
+
+      Object.entries(product.specs).forEach(([key, value]) => {
+        const div = document.createElement("div");
+        div.className = "spec-item";
+        div.innerHTML = `
+          <div class="spec-label">${key.replace(/_/g, " ")}</div>
+          <div class="spec-value">${value}</div>
+        `;
+        specGrid.appendChild(div);
+      });
+    }
+
+    function fillList(elId, items) {
+      const el = document.getElementById(elId);
+      el.innerHTML = "";
+      (items || []).forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        el.appendChild(li);
+      });
+    }
+
+    function fillPills(elId, items) {
+      const el = document.getElementById(elId);
+      el.innerHTML = "";
+      (items || []).forEach((item) => {
+        const span = document.createElement("span");
+        span.className = "pill";
+        span.textContent = item;
+        el.appendChild(span);
+      });
+    }
+
+    async function loadReasoning() {
+      const selected = laptops[selectEl.value || "dell7420"];
+      fillSpecs(selected);
+
+      document.getElementById("headline").textContent = "Loading AI reasoning...";
+      document.getElementById("priceTier").textContent = "Loading value tier...";
+      document.getElementById("priceSummary").textContent = "";
+      document.getElementById("buyerValue").textContent = "";
+      document.getElementById("statusText").textContent = "Generating structured output...";
+      document.getElementById("statusText").className = "status";
 
       try {
         const res = await fetch("/api/compare", {
@@ -87,37 +462,63 @@
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(selected)
         });
 
         const data = await res.json();
 
         if (!res.ok) {
-          console.error(data);
-          document.getElementById("headline").innerText = "Comparison unavailable";
-          return;
+          throw new Error(data.error || "API failed");
         }
 
-        document.getElementById("headline").innerText = data.ai.headline;
-        document.getElementById("price-line").innerText = data.ai.price_line;
-        document.getElementById("savings-line").innerText = data.ai.savings_line;
-        document.getElementById("cta").innerText = data.ai.cta;
+        const ai = data.ai;
 
-        const reasonsList = document.getElementById("reasons");
-        reasonsList.innerHTML = "";
+        document.getElementById("headline").textContent = ai.headline;
+        document.getElementById("priceTier").textContent = ai.price_positioning.tier;
+        document.getElementById("priceSummary").textContent = ai.price_positioning.summary;
+        document.getElementById("buyerValue").textContent = ai.price_positioning.buyer_value;
+        document.getElementById("statusText").textContent = "Reasoning loaded successfully";
 
-        (data.ai.reasons || []).forEach((reason) => {
-          const li = document.createElement("li");
-          li.innerText = reason;
-          reasonsList.appendChild(li);
-        });
+        const priceTableBody = document.getElementById("priceTableBody");
+        priceTableBody.innerHTML = `
+          <tr>
+            <td><strong>Value Tier</strong></td>
+            <td>${ai.price_positioning.tier}</td>
+          </tr>
+          <tr>
+            <td><strong>Positioning Summary</strong></td>
+            <td>${ai.price_positioning.summary}</td>
+          </tr>
+          <tr>
+            <td><strong>Buyer Value</strong></td>
+            <td>${ai.price_positioning.buyer_value}</td>
+          </tr>
+        `;
+
+        fillList("useCaseList", ai.use_cases);
+        fillPills("typeList", ai.laptop_types);
+        fillList("whyBuyList", ai.why_buy_from_newjaisa);
+        fillList("advantagesList", ai.advantages);
+
+        document.getElementById("ctaTitle").textContent = ai.cta_title;
+        document.getElementById("ctaText").textContent = ai.cta_text;
+        document.getElementById("ctaButton").textContent = ai.cta_button;
       } catch (error) {
+        document.getElementById("headline").textContent = "Reasoning unavailable";
+        document.getElementById("priceTier").textContent = "Could not generate value tier";
+        document.getElementById("priceSummary").textContent = "";
+        document.getElementById("buyerValue").textContent = "";
+        document.getElementById("statusText").textContent = error.message;
+        document.getElementById("statusText").className = "status error";
         console.error(error);
-        document.getElementById("headline").innerText = "Comparison unavailable";
       }
     }
 
-    loadComparison();
+    reloadBtn.addEventListener("click", loadReasoning);
+    selectEl.addEventListener("change", loadReasoning);
+
+    selectEl.value = "dell7420";
+    loadReasoning();
   </script>
 </body>
 </html>

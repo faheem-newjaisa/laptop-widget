@@ -1,114 +1,129 @@
 export default async function handler(req, res) {
   try {
-    const { product_title, our_price, amazon_price, flipkart_price, brand_name } =
-      req.method === "POST" ? req.body : req.query;
+    const body = req.method === "POST" ? req.body : req.query;
 
-    const ourPrice = Number(our_price);
-    const amazonPrice = Number(amazon_price);
-    const flipkartPrice = Number(flipkart_price);
+    const {
+      product_title,
+      brand_name = "NewJaisa",
+      specs = {}
+    } = body;
 
-    const competitorPrices = [amazonPrice, flipkartPrice].filter(
-      (p) => !isNaN(p) && p > 0
-    );
-
-    if (!product_title || isNaN(ourPrice) || competitorPrices.length === 0) {
+    if (!product_title || !specs || typeof specs !== "object") {
       return res.status(400).json({
-        error: "Missing or invalid input",
+        error: "Missing product_title or specs"
       });
     }
 
-    const lowestCompetitor = Math.min(...competitorPrices);
-    const highestCompetitor = Math.max(...competitorPrices);
-    const avgCompetitor =
-      competitorPrices.reduce((a, b) => a + b, 0) / competitorPrices.length;
-
-    const savingsVsLowest = Math.max(0, lowestCompetitor - ourPrice);
-    const savingsVsAvg = Math.max(0, Math.round(avgCompetitor - ourPrice));
-    const savingsPercent =
-      avgCompetitor > 0
-        ? Math.max(0, Math.round(((avgCompetitor - ourPrice) / avgCompetitor) * 100))
-        : 0;
-
-    const facts = {
+    const structuredInput = {
       product_title,
-      brand_name: brand_name || "our store",
-      our_price: ourPrice,
-      amazon_price: !isNaN(amazonPrice) ? amazonPrice : null,
-      flipkart_price: !isNaN(flipkartPrice) ? flipkartPrice : null,
-      lowest_competitor_price: lowestCompetitor,
-      highest_competitor_price: highestCompetitor,
-      average_competitor_price: Math.round(avgCompetitor),
-      savings_vs_lowest: savingsVsLowest,
-      savings_vs_average: savingsVsAvg,
-      savings_percent_vs_average: savingsPercent,
+      brand_name,
+      specs
     };
 
     const prompt = `
-You are writing ecommerce widget copy for a refurbished laptop website.
+You are generating structured ecommerce comparison content for a refurbished laptop website.
 
-Use ONLY the facts below. Do not invent any pricing or competitor claims.
+You will receive only:
+- laptop model
+- laptop specifications
 
-Facts:
-${JSON.stringify(facts, null, 2)}
+Your job is to infer:
+- value/price positioning (not exact market price unless given)
+- likely use cases
+- laptop category/type
+- why a buyer may choose this product from the store
+- product advantages
 
-Return valid JSON only in this exact structure:
+Important:
+- Do NOT invent exact competitor prices
+- Do NOT mention Amazon or Flipkart prices
+- Do NOT make fake warranty or certification claims
+- Keep everything realistic, practical, and conversion-friendly
+- Focus on refurbished laptop buyers in India
+- Use the specs to infer practical buyer value
+
+Input:
+${JSON.stringify(structuredInput, null, 2)}
+
+Return valid JSON only in exactly this structure:
 {
   "headline": "string",
-  "price_line": "string",
-  "savings_line": "string",
-  "reasons": ["string", "string", "string", "string"],
-  "cta": "string"
+  "price_positioning": {
+    "tier": "string",
+    "summary": "string",
+    "buyer_value": "string"
+  },
+  "use_cases": ["string", "string", "string", "string"],
+  "laptop_types": ["string", "string", "string", "string"],
+  "why_buy_from_newjaisa": ["string", "string", "string", "string"],
+  "advantages": ["string", "string", "string", "string"],
+  "cta_title": "string",
+  "cta_text": "string",
+  "cta_button": "string"
 }
 
 Rules:
-- Keep it short and trustworthy
-- Do not mention fake seller names beyond Amazon and Flipkart if present
-- Do not claim 'best' or 'cheapest'
-- If savings_vs_average is 0, avoid saying the user saves money
-- Focus on value, testing, warranty, and trust
-- Each reason must be under 8 words
+- headline under 10 words
+- price_positioning.tier under 6 words
+- price_positioning.summary under 20 words
+- price_positioning.buyer_value under 20 words
+- each bullet under 10 words
+- keep output practical, concise, and clean
+- do not use words like "best", "cheapest", "guaranteed best"
 `;
 
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
         model: "gpt-5.4",
         input: prompt,
-      }),
+        text: {
+          format: {
+            type: "json_object"
+          }
+        }
+      })
     });
 
     const data = await response.json();
+
+    if (data?.error) {
+      return res.status(500).json({
+        error: data.error.message || "OpenAI API error",
+        raw: data
+      });
+    }
 
     const rawText = data?.output?.[0]?.content?.[0]?.text;
 
     if (!rawText) {
       return res.status(500).json({
         error: "No text returned from OpenAI",
-        raw: data,
+        raw: data
       });
     }
 
-    let aiJson;
+    let parsed;
     try {
-      aiJson = JSON.parse(rawText);
-    } catch (e) {
+      parsed = JSON.parse(rawText);
+    } catch (err) {
       return res.status(500).json({
         error: "OpenAI did not return valid JSON",
-        rawText,
+        rawText
       });
     }
 
     return res.status(200).json({
-      facts,
-      ai: aiJson,
+      input: structuredInput,
+      ai: parsed
     });
   } catch (error) {
     return res.status(500).json({
-      error: error.message || "Internal server error",
+      error: error.message || "Internal server error"
     });
   }
 }
