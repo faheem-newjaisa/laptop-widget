@@ -16,7 +16,7 @@
     }
 
     .widget {
-      max-width: 900px;
+      max-width: 980px;
       margin: 0 auto;
       background: #ffffff;
       border-radius: 24px;
@@ -47,11 +47,11 @@
       color: #cbd5e1;
       font-size: 13px;
       line-height: 1.5;
-      max-width: 540px;
+      max-width: 560px;
     }
 
     .switcher {
-      min-width: 240px;
+      min-width: 260px;
     }
 
     .switcher label {
@@ -73,7 +73,7 @@
 
     .hero {
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
+      grid-template-columns: 1.1fr 0.9fr;
       gap: 16px;
       padding: 18px;
       border-bottom: 1px solid #e5e7eb;
@@ -138,6 +138,27 @@
       font-size: 14px;
       line-height: 1.6;
       margin: 8px 0;
+    }
+
+    .savings-banner {
+      margin: 0 18px 18px;
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: #fff;
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .savings-sub {
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0.95;
     }
 
     .price-box {
@@ -238,6 +259,59 @@
       font-weight: 700;
     }
 
+    .alternatives {
+      padding: 18px;
+      border-top: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+      background: #fcfcfd;
+    }
+
+    .alternatives h3 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      color: #0f172a;
+    }
+
+    .alt-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .alt-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .alt-card h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: #111827;
+      line-height: 1.3;
+    }
+
+    .alt-price {
+      color: #16a34a;
+      font-weight: 800;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .alt-meta {
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .alt-reason {
+      color: #374151;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
     .footer {
       padding: 18px;
       background: #0f172a;
@@ -276,8 +350,8 @@
       color: #6b7280;
     }
 
-    @media (max-width: 860px) {
-      .hero, .section-grid {
+    @media (max-width: 900px) {
+      .hero, .section-grid, .alt-grid {
         grid-template-columns: 1fr;
       }
 
@@ -292,7 +366,7 @@
     <div class="topbar">
       <div>
         <h1>Why this laptop is worth buying</h1>
-        <p>Compare price first, then see who it suits best and why NewJaisa is the smarter place to buy.</p>
+        <p>Compare price first, then see who it suits best, why NewJaisa is a smarter buy, and which alternatives also fit your budget.</p>
       </div>
       <div class="switcher">
         <label for="modelSelect">Change laptop model</label>
@@ -314,6 +388,11 @@
         <p class="summary-text" id="buyerValue"></p>
         <p class="status" id="statusText">Generating...</p>
       </div>
+    </div>
+
+    <div class="savings-banner">
+      <div id="savingsBannerText">💰 Checking savings opportunity...</div>
+      <div class="savings-sub" id="savingsBannerSub">Comparing NewJaisa against marketplace references</div>
     </div>
 
     <div class="price-box">
@@ -366,6 +445,11 @@
       </div>
     </div>
 
+    <div class="alternatives">
+      <h3>🔄 Alternative options you can consider</h3>
+      <div class="alt-grid" id="altGrid"></div>
+    </div>
+
     <div class="footer">
       <div>
         <h3 id="ctaTitle">Loading CTA...</h3>
@@ -378,6 +462,7 @@
   <script>
     const models = {
       dell7420: {
+        id: "dell7420",
         product_title: "Dell Latitude 7420 Refurbished",
         brand_name: "NewJaisa",
         our_price: 27999,
@@ -394,6 +479,7 @@
         }
       },
       hp840g5: {
+        id: "hp840g5",
         product_title: "HP EliteBook 840 G5 Refurbished",
         brand_name: "NewJaisa",
         our_price: 24999,
@@ -410,6 +496,7 @@
         }
       },
       t480: {
+        id: "t480",
         product_title: "Lenovo ThinkPad T480 Refurbished",
         brand_name: "NewJaisa",
         our_price: 23999,
@@ -426,6 +513,7 @@
         }
       },
       gamingg15: {
+        id: "gamingg15",
         product_title: "Dell G15 Gaming Laptop Refurbished",
         brand_name: "NewJaisa",
         our_price: 52999,
@@ -439,6 +527,23 @@
           gpu: "NVIDIA RTX 3050",
           weight: "2.5 kg",
           os: "Windows 11"
+        }
+      },
+      macair: {
+        id: "macair",
+        product_title: "MacBook Air Refurbished",
+        brand_name: "NewJaisa",
+        our_price: 42999,
+        compare_price_amazon: 48999,
+        compare_price_flipkart: 46999,
+        specs: {
+          processor: "Intel Core i5",
+          ram: "8 GB",
+          storage: "256 GB SSD",
+          display: "13.3 inch Retina",
+          gpu: "Integrated Graphics",
+          weight: "1.29 kg",
+          os: "macOS"
         }
       }
     };
@@ -478,84 +583,150 @@
       return "₹" + Number(v).toLocaleString("en-IN");
     }
 
-    async function loadWidget() {
-      const model = models[select.value || "dell7420"];
+    function renderAlternatives(items = []) {
+      const altGrid = document.getElementById("altGrid");
+      altGrid.innerHTML = "";
 
-      document.getElementById("title").textContent = model.product_title;
-      document.getElementById("specLine").textContent =
-        Object.values(model.specs).join(" • ");
-
-      const badges = document.getElementById("badges");
-      badges.innerHTML = "";
-      [
-        "💰 Better value",
-        "🛡️ Warranty-backed",
-        "🔍 Refurbished",
-        model.specs.os
-      ].forEach(item => {
-        const span = document.createElement("span");
-        span.className = "badge";
-        span.textContent = item;
-        badges.appendChild(span);
-      });
-
-      document.getElementById("statusText").textContent = "Generating...";
-
-      const res = await fetch("/api/compare", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(model)
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        document.getElementById("statusText").textContent = data.error || "Failed";
+      if (!items.length) {
+        altGrid.innerHTML = `<div class="alt-card"><h4>No alternatives available</h4><div class="alt-reason">Try another model to see nearby options.</div></div>`;
         return;
       }
 
-      const ai = data.ai;
+      items.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "alt-card";
+        card.innerHTML = `
+          <h4>${item.product_title}</h4>
+          <div class="alt-price">${item.price_text || formatPrice(item.our_price)}</div>
+          <div class="alt-meta">${(item.tags || []).join(" • ")}</div>
+          <div class="alt-reason">${item.reason || ""}</div>
+        `;
+        altGrid.appendChild(card);
+      });
+    }
 
-      document.getElementById("headline").textContent = ai.headline;
-      document.getElementById("valueTier").textContent = ai.price_positioning.tier;
-      document.getElementById("priceSummary").textContent = ai.price_positioning.summary;
-      document.getElementById("buyerValue").textContent = ai.price_positioning.buyer_value;
-      document.getElementById("statusText").textContent = "Updated";
-      document.getElementById("dealChip").textContent =
-        ai.price_comparison.comparison_note || "🔥 Better price-value fit";
+    async function loadWidget() {
+      try {
+        const model = models[select.value || "dell7420"];
 
-      fillList("newjaisaList", ai.why_buy_from_newjaisa);
-      fillList("userList", ai.best_for_users);
-      fillList("professionList", ai.profession_fit);
-      fillList("advList", ai.advantages);
-      fillList("perfList", ai.performance_summary);
-      fillPills("typeList", ai.laptop_types);
+        document.getElementById("title").textContent = model.product_title;
+        document.getElementById("specLine").textContent =
+          Object.values(model.specs).join(" • ");
 
-      document.getElementById("ctaTitle").textContent = ai.cta_title;
-      document.getElementById("ctaText").textContent = ai.cta_text;
-      document.getElementById("ctaBtn").textContent = ai.cta_button;
+        const badges = document.getElementById("badges");
+        badges.innerHTML = "";
+        [
+          "💰 Better value",
+          "✔ 72-point QC",
+          "🛡 1 year warranty",
+          "🔄 Buyback support",
+          model.specs.os
+        ].forEach(item => {
+          const span = document.createElement("span");
+          span.className = "badge";
+          span.textContent = item;
+          badges.appendChild(span);
+        });
 
-      const pb = document.getElementById("priceBody");
-      pb.innerHTML = `
-        <tr>
-          <td><strong>NewJaisa</strong></td>
-          <td>${ai.price_comparison.our_price_text || formatPrice(model.our_price)}</td>
-          <td>Store price</td>
-          <td>Primary buying price</td>
-        </tr>
-        <tr>
-          <td><strong>Amazon</strong></td>
-          <td>${ai.price_comparison.amazon_price_text || "Unavailable"}</td>
-          <td>Reference</td>
-          <td>External comparison input</td>
-        </tr>
-        <tr>
-          <td><strong>Flipkart</strong></td>
-          <td>${ai.price_comparison.flipkart_price_text || "Unavailable"}</td>
-          <td>Reference</td>
-          <td>External comparison input</td>
-        </tr>
-      `;
+        document.getElementById("statusText").textContent = "Generating...";
+
+        const payload = {
+          selected_model: model,
+          catalog: Object.values(models)
+        };
+
+        const res = await fetch("/api/compare", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          document.getElementById("headline").textContent = "Could not load AI reasoning";
+          document.getElementById("valueTier").textContent = "API error";
+          document.getElementById("priceSummary").textContent = data.error || "Unknown API error";
+          document.getElementById("buyerValue").textContent = "";
+          document.getElementById("statusText").textContent = data.error || "Failed";
+          renderAlternatives([]);
+          return;
+        }
+
+        const ai = data.ai;
+        const selected = data.selected_model || model;
+
+        document.getElementById("headline").textContent = ai.headline;
+        document.getElementById("valueTier").textContent = ai.price_positioning.tier;
+        document.getElementById("priceSummary").textContent = ai.price_positioning.summary;
+        document.getElementById("buyerValue").textContent = ai.price_positioning.buyer_value;
+        document.getElementById("statusText").textContent = "Updated";
+        document.getElementById("dealChip").textContent =
+          ai.price_comparison.comparison_note || "🔥 Better price-value fit";
+
+        fillList("newjaisaList", ai.why_buy_from_newjaisa);
+        fillList("userList", ai.best_for_users);
+        fillList("professionList", ai.profession_fit);
+        fillList("advList", ai.advantages);
+        fillList("perfList", ai.performance_summary);
+        fillPills("typeList", ai.laptop_types);
+
+        document.getElementById("ctaTitle").textContent = ai.cta_title;
+        document.getElementById("ctaText").textContent = ai.cta_text;
+        document.getElementById("ctaBtn").textContent = ai.cta_button;
+
+        const amazon = Number(selected.compare_price_amazon);
+        const flipkart = Number(selected.compare_price_flipkart);
+        const marketPrices = [amazon, flipkart].filter(v => !Number.isNaN(v) && v > 0);
+        const avgMarket = marketPrices.length
+          ? Math.round(marketPrices.reduce((a, b) => a + b, 0) / marketPrices.length)
+          : null;
+
+        if (avgMarket && Number(selected.our_price) < avgMarket) {
+          const savings = avgMarket - Number(selected.our_price);
+          document.getElementById("savingsBannerText").textContent =
+            `💰 Save ₹${savings.toLocaleString("en-IN")} vs typical marketplace price`;
+          document.getElementById("savingsBannerSub").textContent =
+            `NewJaisa: ${formatPrice(selected.our_price)} • Market avg: ${formatPrice(avgMarket)}`;
+        } else {
+          document.getElementById("savingsBannerText").textContent =
+            "💰 Strong refurbished value positioning";
+          document.getElementById("savingsBannerSub").textContent =
+            "This model is positioned as a practical value buy";
+        }
+
+        const pb = document.getElementById("priceBody");
+        pb.innerHTML = `
+          <tr>
+            <td>🟢 <strong>NewJaisa</strong></td>
+            <td>${ai.price_comparison.our_price_text || formatPrice(selected.our_price)}</td>
+            <td>Store price</td>
+            <td>Primary buying price</td>
+          </tr>
+          <tr>
+            <td>🟡 <strong>Amazon</strong></td>
+            <td>${ai.price_comparison.amazon_price_text || "Unavailable"}</td>
+            <td>Reference</td>
+            <td>Marketplace benchmark</td>
+          </tr>
+          <tr>
+            <td>🟡 <strong>Flipkart</strong></td>
+            <td>${ai.price_comparison.flipkart_price_text || "Unavailable"}</td>
+            <td>Reference</td>
+            <td>Marketplace benchmark</td>
+          </tr>
+        `;
+
+        renderAlternatives(data.alternatives || []);
+      } catch (err) {
+        document.getElementById("headline").textContent = "Frontend error";
+        document.getElementById("valueTier").textContent = "Request failed";
+        document.getElementById("priceSummary").textContent = err.message;
+        document.getElementById("buyerValue").textContent = "";
+        document.getElementById("statusText").textContent = err.message;
+        renderAlternatives([]);
+        console.error(err);
+      }
     }
 
     select.addEventListener("change", loadWidget);

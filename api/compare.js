@@ -14,29 +14,26 @@ export default async function handler(req, res) {
     }
 
     const body = req.body || {};
+    const selected_model = body.selected_model || null;
+    const catalog = Array.isArray(body.catalog) ? body.catalog : [];
 
-    const {
-      product_title,
-      brand_name = "NewJaisa",
-      our_price = null,
-      compare_price_amazon = null,
-      compare_price_flipkart = null,
-      specs = {}
-    } = body;
-
-    if (!product_title || !specs || typeof specs !== "object") {
+    if (!selected_model || !selected_model.product_title || !selected_model.specs) {
       return res.status(400).json({
-        error: "Missing product_title or specs"
+        error: "Missing selected_model or specs"
       });
     }
 
+    const selectedId = selected_model.id || null;
+    const alternativesPool = catalog.filter(item => item.id !== selectedId);
+
     const input = {
-      product_title,
-      brand_name,
-      our_price,
-      compare_price_amazon,
-      compare_price_flipkart,
-      specs,
+      selected_model,
+      catalog_summary: alternativesPool.map(item => ({
+        id: item.id,
+        product_title: item.product_title,
+        our_price: item.our_price,
+        specs: item.specs
+      })),
       newjaisa_points: [
         "72-point quality check",
         "1-year warranty",
@@ -47,7 +44,7 @@ export default async function handler(req, res) {
     };
 
     const prompt = `
-You are generating content for a compact customer-facing widget on NewJaisa.
+You are generating compact customer-facing content for a NewJaisa laptop widget.
 
 Priority order:
 1. Price comparison
@@ -56,16 +53,15 @@ Priority order:
 4. Profession fit
 5. Key advantages
 6. Laptop type
+7. Alternative options
 
 Use only the input provided.
 
-Important:
-- Prioritize practical customer benefits over technical jargon
-- Make NewJaisa reasons stronger than generic laptop descriptions
-- If compare prices are provided, mention value clearly
-- If compare prices are missing, do not invent them
-- If specs indicate gaming suitability, mention gamers and creators where relevant
-- Keep every section compact and useful
+Alternative options rules:
+- Suggest up to 3 alternatives from the provided catalog_summary
+- Choose based on price band, user type, laptop category, and practical suitability
+- Do not repeat the selected model
+- Keep the reasons compact and useful
 
 Input:
 ${JSON.stringify(input, null, 2)}
@@ -90,6 +86,13 @@ Return valid JSON only in exactly this structure:
   "laptop_types": ["string", "string", "string", "string"],
   "advantages": ["string", "string", "string", "string"],
   "performance_summary": ["string", "string", "string", "string"],
+  "alternatives": [
+    {
+      "id": "string",
+      "reason": "string",
+      "tags": ["string", "string"]
+    }
+  ],
   "cta_title": "string",
   "cta_text": "string",
   "cta_button": "string"
@@ -98,9 +101,10 @@ Return valid JSON only in exactly this structure:
 Rules:
 - headline under 9 words
 - each bullet under 8 words
-- use customer language, not engineering language
-- no unsupported superlatives
-- no fake policies
+- alternative reason under 16 words
+- use customer language
+- do not invent policies beyond input
+- do not invent external live price data
 `;
 
     if (!process.env.OPENAI_API_KEY) {
@@ -159,9 +163,23 @@ Rules:
       });
     }
 
+    const alternatives = (parsed.alternatives || []).map(alt => {
+      const match = catalog.find(item => item.id === alt.id);
+      if (!match) return null;
+      return {
+        id: match.id,
+        product_title: match.product_title,
+        our_price: match.our_price,
+        price_text: match.our_price ? `₹${Number(match.our_price).toLocaleString("en-IN")}` : "",
+        tags: Array.isArray(alt.tags) ? alt.tags : [],
+        reason: alt.reason || ""
+      };
+    }).filter(Boolean);
+
     return res.status(200).json({
-      input,
-      ai: parsed
+      selected_model,
+      ai: parsed,
+      alternatives
     });
   } catch (error) {
     return res.status(500).json({
