@@ -31,6 +31,7 @@ color:green;
 </head>
 
 <body>
+<p id="ai-reason">Loading AI comparison...</p>
 
 <h2>Dell Latitude 7420</h2>
 
@@ -65,16 +66,20 @@ color:green;
 
 </div>
 <script>
-async function testAI() {
+async function loadAIReason() {
   try {
     const res = await fetch("/api/test");
     const data = await res.json();
-    console.log("AI response:", data);
-  } catch (e) {
-    console.error("Error:", e);
+
+    const text = data.output[0].content[0].text;
+
+    document.getElementById("ai-reason").innerText = text;
+  } catch (err) {
+    console.error(err);
   }
 }
-testAI();
+
+loadAIReason();
 </script>
 </body>
 </html>
