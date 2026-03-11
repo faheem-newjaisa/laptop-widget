@@ -5,6 +5,9 @@ export default async function handler(req, res) {
     const {
       product_title,
       brand_name = "NewJaisa",
+      our_price = null,
+      compare_price_amazon = null,
+      compare_price_flipkart = null,
       specs = {}
     } = body;
 
@@ -14,36 +17,38 @@ export default async function handler(req, res) {
       });
     }
 
-    const structuredInput = {
+    const input = {
       product_title,
       brand_name,
-      specs
+      our_price,
+      compare_price_amazon,
+      compare_price_flipkart,
+      specs,
+      newjaisa_points: [
+        "72-point quality check",
+        "1-year warranty",
+        "14-day return and replacement policy",
+        "lifetime buyback guarantee",
+        "refurbished laptops for work, study, and gaming"
+      ]
     };
 
     const prompt = `
-You are generating structured ecommerce comparison content for a refurbished laptop website.
+You are generating structured content for a compact laptop comparison widget for NewJaisa.
 
-You will receive only:
-- laptop model
-- laptop specifications
+Use only the input provided.
 
-Your job is to infer:
-- value/price positioning (not exact market price unless given)
-- likely use cases
-- laptop category/type
-- why a buyer may choose this product from the store
-- product advantages
-
-Important:
-- Do NOT invent exact competitor prices
-- Do NOT mention Amazon or Flipkart prices
-- Do NOT make fake warranty or certification claims
-- Keep everything realistic, practical, and conversion-friendly
-- Focus on refurbished laptop buyers in India
-- Use the specs to infer practical buyer value
+Goals:
+- explain why this laptop is worth buying from NewJaisa
+- identify the type of user
+- identify profession fit
+- identify if it suits gaming, students, office users, creators, etc.
+- summarize value / price positioning
+- compare price only if compare prices are provided
+- if no compare prices are provided, do NOT invent market prices; instead describe value positioning
 
 Input:
-${JSON.stringify(structuredInput, null, 2)}
+${JSON.stringify(input, null, 2)}
 
 Return valid JSON only in exactly this structure:
 {
@@ -53,10 +58,18 @@ Return valid JSON only in exactly this structure:
     "summary": "string",
     "buyer_value": "string"
   },
-  "use_cases": ["string", "string", "string", "string"],
-  "laptop_types": ["string", "string", "string", "string"],
+  "price_comparison": {
+    "our_price_text": "string",
+    "amazon_price_text": "string",
+    "flipkart_price_text": "string",
+    "comparison_note": "string"
+  },
   "why_buy_from_newjaisa": ["string", "string", "string", "string"],
+  "best_for_users": ["string", "string", "string", "string"],
+  "profession_fit": ["string", "string", "string", "string"],
+  "laptop_types": ["string", "string", "string", "string"],
   "advantages": ["string", "string", "string", "string"],
+  "performance_summary": ["string", "string", "string", "string"],
   "cta_title": "string",
   "cta_text": "string",
   "cta_button": "string"
@@ -64,12 +77,14 @@ Return valid JSON only in exactly this structure:
 
 Rules:
 - headline under 10 words
-- price_positioning.tier under 6 words
-- price_positioning.summary under 20 words
-- price_positioning.buyer_value under 20 words
-- each bullet under 10 words
-- keep output practical, concise, and clean
-- do not use words like "best", "cheapest", "guaranteed best"
+- each bullet under 9 words
+- keep it compact and conversion-friendly
+- prioritize why NewJaisa over generic specs
+- if the GPU/specs indicate gaming, mention gaming fit
+- do not invent certifications or policies beyond the input
+- do not invent exact competitor prices
+- if compare prices are missing, say comparison currently unavailable and focus on value
+- do not use "best" or "cheapest"
 `;
 
     const response = await fetch("https://api.openai.com/v1/responses", {
@@ -82,9 +97,7 @@ Rules:
         model: "gpt-5.4",
         input: prompt,
         text: {
-          format: {
-            type: "json_object"
-          }
+          format: { type: "json_object" }
         }
       })
     });
@@ -118,7 +131,7 @@ Rules:
     }
 
     return res.status(200).json({
-      input: structuredInput,
+      input,
       ai: parsed
     });
   } catch (error) {
