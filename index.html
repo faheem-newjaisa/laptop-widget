@@ -64,6 +64,17 @@ color:green;
 </ul>
 
 </div>
-
+<script>
+async function testAI() {
+  try {
+    const res = await fetch("/api/test");
+    const data = await res.json();
+    console.log("AI response:", data);
+  } catch (e) {
+    console.error("Error:", e);
+  }
+}
+testAI();
+</script>
 </body>
 </html>
