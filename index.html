@@ -3,29 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NewJaisa Smart Laptop Widget</title>
+  <title>NewJaisa Laptop Widget</title>
   <style>
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
       padding: 24px;
-      font-family: Arial, sans-serif;
-      background: #f3f6fb;
+      font-family: Inter, Arial, sans-serif;
+      background: #f4f7fb;
       color: #111827;
     }
 
     .widget {
-      max-width: 920px;
+      max-width: 900px;
       margin: 0 auto;
       background: #ffffff;
       border-radius: 24px;
-      box-shadow: 0 14px 38px rgba(0,0,0,0.08);
+      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
       overflow: hidden;
+      border: 1px solid #e5e7eb;
     }
 
     .topbar {
-      background: linear-gradient(135deg, #111827, #1f2937);
+      background: linear-gradient(135deg, #0f172a, #1e293b);
       color: #fff;
       padding: 18px 20px;
       display: flex;
@@ -38,26 +39,26 @@
     .topbar h1 {
       margin: 0 0 6px;
       font-size: 26px;
-      line-height: 1.2;
+      line-height: 1.15;
     }
 
     .topbar p {
       margin: 0;
-      color: #d1d5db;
+      color: #cbd5e1;
       font-size: 13px;
       line-height: 1.5;
-      max-width: 560px;
+      max-width: 540px;
     }
 
     .switcher {
-      min-width: 250px;
+      min-width: 240px;
     }
 
     .switcher label {
       display: block;
       font-size: 12px;
       font-weight: 700;
-      color: #d1d5db;
+      color: #dbeafe;
       margin-bottom: 6px;
     }
 
@@ -67,44 +68,47 @@
       border-radius: 12px;
       border: none;
       font-size: 14px;
+      outline: none;
     }
 
     .hero {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-columns: 1.15fr 0.85fr;
       gap: 16px;
       padding: 18px;
       border-bottom: 1px solid #e5e7eb;
     }
 
     .panel {
-      background: #f9fafb;
+      background: #f8fafc;
       border-radius: 18px;
       padding: 18px;
+      border: 1px solid #e5e7eb;
     }
 
     .title {
       margin: 0 0 8px;
       font-size: 26px;
       line-height: 1.2;
+      color: #0f172a;
     }
 
     .specline {
       margin: 0;
-      color: #6b7280;
+      color: #64748b;
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     .badge-wrap {
-      margin-top: 14px;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      margin-top: 14px;
     }
 
     .badge {
-      background: #e8eefc;
+      background: #e0ecff;
       color: #1d4ed8;
       padding: 8px 10px;
       border-radius: 999px;
@@ -113,18 +117,20 @@
     }
 
     .headline {
-      margin: 0 0 12px;
+      margin: 0 0 10px;
       font-size: 21px;
       line-height: 1.3;
+      color: #111827;
     }
 
     .value-tier {
-      background: #ecfdf5;
-      color: #065f46;
+      background: linear-gradient(135deg, #dcfce7, #ecfdf5);
+      color: #166534;
       border-radius: 14px;
       padding: 12px 14px;
-      font-weight: 700;
+      font-weight: 800;
       margin-bottom: 10px;
+      border: 1px solid #bbf7d0;
     }
 
     .summary-text {
@@ -134,12 +140,62 @@
       margin: 8px 0;
     }
 
+    .price-box {
+      padding: 18px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #ffffff;
+    }
+
+    .price-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .price-top h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #0f172a;
+    }
+
+    .deal-chip {
+      background: #fff7ed;
+      color: #c2410c;
+      border: 1px solid #fdba74;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    th {
+      color: #6b7280;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
     .section-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
       padding: 18px;
-      border-bottom: 1px solid #e5e7eb;
     }
 
     .section {
@@ -152,6 +208,7 @@
     .section h3 {
       margin: 0 0 12px;
       font-size: 17px;
+      color: #0f172a;
     }
 
     ul {
@@ -181,39 +238,9 @@
       font-weight: 700;
     }
 
-    .price-box {
-      padding: 18px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .price-box h3 {
-      margin: 0 0 12px;
-      font-size: 17px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 12px 10px;
-      border-bottom: 1px solid #e5e7eb;
-      font-size: 14px;
-      vertical-align: top;
-    }
-
-    th {
-      color: #6b7280;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-
     .footer {
       padding: 18px;
-      background: #111827;
+      background: #0f172a;
       color: #fff;
       display: flex;
       justify-content: space-between;
@@ -229,18 +256,18 @@
 
     .footer p {
       margin: 0;
-      color: #d1d5db;
+      color: #cbd5e1;
       font-size: 14px;
       line-height: 1.5;
     }
 
     .footer a {
-      background: #fff;
+      background: #ffffff;
       color: #111827;
       text-decoration: none;
       padding: 12px 16px;
       border-radius: 12px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .status {
@@ -253,6 +280,7 @@
       .hero, .section-grid {
         grid-template-columns: 1fr;
       }
+
       .title {
         font-size: 22px;
       }
@@ -263,8 +291,8 @@
   <div class="widget">
     <div class="topbar">
       <div>
-        <h1>Find the right refurbished laptop</h1>
-        <p>Switch the model to see user fit, profession fit, advantages, NewJaisa reasons, and price positioning.</p>
+        <h1>Why this laptop is worth buying</h1>
+        <p>Compare price first, then see who it suits best and why NewJaisa is the smarter place to buy.</p>
       </div>
       <div class="switcher">
         <label for="modelSelect">Change laptop model</label>
@@ -288,51 +316,54 @@
       </div>
     </div>
 
-    <div class="section-grid">
-      <div class="section">
-        <h3>Why buy from NewJaisa</h3>
-        <ul id="newjaisaList"></ul>
-      </div>
-
-      <div class="section">
-        <h3>Best for which user</h3>
-        <ul id="userList"></ul>
-      </div>
-
-      <div class="section">
-        <h3>Profession fit</h3>
-        <ul id="professionList"></ul>
-      </div>
-
-      <div class="section">
-        <h3>Type of laptop</h3>
-        <div class="pill-wrap" id="typeList"></div>
-      </div>
-
-      <div class="section">
-        <h3>Advantages</h3>
-        <ul id="advList"></ul>
-      </div>
-
-      <div class="section">
-        <h3>Performance summary</h3>
-        <ul id="perfList"></ul>
-      </div>
-    </div>
-
     <div class="price-box">
-      <h3>Price comparison</h3>
+      <div class="price-top">
+        <h3>💸 Price comparison</h3>
+        <div class="deal-chip" id="dealChip">🔥 Better value positioning</div>
+      </div>
       <table>
         <thead>
           <tr>
             <th>Source</th>
             <th>Price</th>
             <th>Position</th>
-            <th>Notes</th>
+            <th>Why it matters</th>
           </tr>
         </thead>
         <tbody id="priceBody"></tbody>
       </table>
+    </div>
+
+    <div class="section-grid">
+      <div class="section">
+        <h3>✅ Why buy from NewJaisa</h3>
+        <ul id="newjaisaList"></ul>
+      </div>
+
+      <div class="section">
+        <h3>👤 Best for which user</h3>
+        <ul id="userList"></ul>
+      </div>
+
+      <div class="section">
+        <h3>💼 Profession fit</h3>
+        <ul id="professionList"></ul>
+      </div>
+
+      <div class="section">
+        <h3>⚡ Key advantages</h3>
+        <ul id="advList"></ul>
+      </div>
+
+      <div class="section">
+        <h3>🧠 Performance summary</h3>
+        <ul id="perfList"></ul>
+      </div>
+
+      <div class="section">
+        <h3>🏷️ Laptop type</h3>
+        <div class="pill-wrap" id="typeList"></div>
+      </div>
     </div>
 
     <div class="footer">
@@ -413,6 +444,7 @@
     };
 
     const select = document.getElementById("modelSelect");
+
     Object.entries(models).forEach(([key, value]) => {
       const option = document.createElement("option");
       option.value = key;
@@ -455,7 +487,12 @@
 
       const badges = document.getElementById("badges");
       badges.innerHTML = "";
-      ["Refurbished", "NewJaisa", model.specs.os, model.specs.gpu].forEach(item => {
+      [
+        "💰 Better value",
+        "🛡️ Warranty-backed",
+        "🔍 Refurbished",
+        model.specs.os
+      ].forEach(item => {
         const span = document.createElement("span");
         span.className = "badge";
         span.textContent = item;
@@ -484,13 +521,15 @@
       document.getElementById("priceSummary").textContent = ai.price_positioning.summary;
       document.getElementById("buyerValue").textContent = ai.price_positioning.buyer_value;
       document.getElementById("statusText").textContent = "Updated";
+      document.getElementById("dealChip").textContent =
+        ai.price_comparison.comparison_note || "🔥 Better price-value fit";
 
       fillList("newjaisaList", ai.why_buy_from_newjaisa);
       fillList("userList", ai.best_for_users);
       fillList("professionList", ai.profession_fit);
-      fillPills("typeList", ai.laptop_types);
       fillList("advList", ai.advantages);
       fillList("perfList", ai.performance_summary);
+      fillPills("typeList", ai.laptop_types);
 
       document.getElementById("ctaTitle").textContent = ai.cta_title;
       document.getElementById("ctaText").textContent = ai.cta_text;
@@ -501,20 +540,20 @@
         <tr>
           <td><strong>NewJaisa</strong></td>
           <td>${ai.price_comparison.our_price_text || formatPrice(model.our_price)}</td>
-          <td>Our listed price</td>
-          <td>Refurbished store offer</td>
+          <td>Store price</td>
+          <td>Primary buying price</td>
         </tr>
         <tr>
           <td><strong>Amazon</strong></td>
           <td>${ai.price_comparison.amazon_price_text || "Unavailable"}</td>
-          <td>Reference comparison</td>
-          <td>${ai.price_comparison.comparison_note || "Manual comparison input"}</td>
+          <td>Reference</td>
+          <td>External comparison input</td>
         </tr>
         <tr>
           <td><strong>Flipkart</strong></td>
           <td>${ai.price_comparison.flipkart_price_text || "Unavailable"}</td>
-          <td>Reference comparison</td>
-          <td>${ai.price_comparison.comparison_note || "Manual comparison input"}</td>
+          <td>Reference</td>
+          <td>External comparison input</td>
         </tr>
       `;
     }
