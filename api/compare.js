@@ -69,18 +69,16 @@ Return valid JSON only in this exact structure:
 }
 `;
 
-    const competitorResponse = await fetch("https://api.openai.com/v1/responses", {
+    const competitorResponse = await fetch("https://api.openai.com/v1/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-5.4",
-        input: competitorPrompt,
-        text: {
-          format: { type: "json_object" }
-        }
+        model: "gpt-4",
+        prompt: competitorPrompt,
+        max_tokens: 150
       })
     });
 
@@ -93,7 +91,7 @@ Return valid JSON only in this exact structure:
       });
     }
 
-    const competitorRaw = competitorData?.output?.[0]?.content?.[0]?.text;
+    const competitorRaw = competitorData?.choices[0]?.text;
     if (!competitorRaw) {
       return res.status(500).json({
         error: "No competitor data returned"
@@ -114,7 +112,6 @@ Return valid JSON only in this exact structure:
       ? competitorParsed.candidates
       : [];
 
-    // Safety filters
     candidates = candidates.filter(item => {
       if (!item || !item.product_title || !item.specs || !item.price) return false;
       const itemCategory = String(item.category || "").toLowerCase();
@@ -125,13 +122,6 @@ Return valid JSON only in this exact structure:
 
       return itemCategory !== "gaming";
     });
-
-    if (ourPrice > 0) {
-      candidates = candidates.filter(item => {
-        const p = Number(item.price || 0);
-        return p >= Math.round(ourPrice * 0.9) && p <= Math.round(ourPrice * 1.35);
-      });
-    }
 
     const comparisonCandidates = candidates.slice(0, 3);
     const alternativesPool = candidates.slice(3);
@@ -183,27 +173,18 @@ Return valid JSON only in exactly this structure:
   "cta_text": "string",
   "cta_button": "string"
 }
-
-Rules:
-- keep all lines compact
-- emphasize that refurb can give better specs at the same budget
-- do not invent policies beyond input
-- keep value scores realistic
-- alternatives must use IDs from the alternative pool when available
 `;
 
-    const reasoningResponse = await fetch("https://api.openai.com/v1/responses", {
+    const reasoningResponse = await fetch("https://api.openai.com/v1/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-5.4",
-        input: reasoningPrompt,
-        text: {
-          format: { type: "json_object" }
-        }
+        model: "gpt-4",
+        prompt: reasoningPrompt,
+        max_tokens: 150
       })
     });
 
@@ -216,7 +197,7 @@ Rules:
       });
     }
 
-    const reasoningRaw = reasoningData?.output?.[0]?.content?.[0]?.text;
+    const reasoningRaw = reasoningData?.choices[0]?.text;
     if (!reasoningRaw) {
       return res.status(500).json({
         error: "No reasoning data returned"

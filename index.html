@@ -79,14 +79,6 @@
       font-weight: 800;
     }
 
-    .banner small {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      opacity: 0.95;
-      margin-top: 4px;
-    }
-
     .status-box {
       margin: 16px 18px 0;
       border: 1px solid #dbeafe;
@@ -380,8 +372,7 @@
         <table>
           <thead>
             <tr>
-              <th>Option</th>
-              <th>Condition</th>
+              <th>Model</th>
               <th>Processor</th>
               <th>RAM</th>
               <th>Storage</th>
@@ -520,6 +511,24 @@
       }
     };
 
+    async function fetchAlternativeModels(price, category) {
+      const response = await fetch("https://api.openai.com/v1/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer YOUR_OPENAI_API_KEY"
+        },
+        body: JSON.stringify({
+          model: "gpt-4",
+          prompt: `Find new laptops in the category "${category}" and price range around ₹${price}`,
+          max_tokens: 150
+        })
+      });
+
+      const data = await response.json();
+      return data.choices[0].text.split("\n").map(item => item.trim()).filter(Boolean);
+    }
+
     function formatPrice(v) {
       return "₹" + Number(v).toLocaleString("en-IN");
     }
@@ -528,136 +537,42 @@
       return `<span class="score ${good ? "" : "score-low"}">${score}/10</span>`;
     }
 
-    function fillList(id, items = []) {
-      const el = document.getElementById(id);
-      el.innerHTML = "";
-      items.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        el.appendChild(li);
-      });
-    }
+    function animateText(element, text) {
+      let index = 0;
+      element.textContent = "";
 
-    function renderAlternatives(items = []) {
-      const altGrid = document.getElementById("altGrid");
-      altGrid.innerHTML = "";
-
-      if (!items.length) {
-        altGrid.innerHTML = `
-          <div class="alt-card">
-            <h4>No alternatives available</h4>
-            <div class="alt-reason">No suitable new-laptop alternatives were returned.</div>
-          </div>
-        `;
-        return;
+      function updateText() {
+        if (index < text.length) {
+          element.textContent += text[index++];
+          setTimeout(updateText, 50);  // Adjust the speed here
+        }
       }
 
-      items.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "alt-card";
-        card.innerHTML = `
-          <h4>${item.product_title}</h4>
-          <div class="alt-price">${item.price_text || formatPrice(item.price)}</div>
-          <div class="alt-reason">${item.reason || ""}</div>
-        `;
-        altGrid.appendChild(card);
-      });
+      updateText();
     }
-
-    function setLoadingState() {
-      document.getElementById("bannerMain").textContent = "💰 Searching similar new laptops...";
-      document.getElementById("bannerSub").innerHTML = "<small>Finding same-category competitors in the same price band</small>";
-      document.getElementById("comparisonHeading").textContent = "Building comparison...";
-      document.getElementById("comparisonChip").textContent = "Searching";
-      document.getElementById("statusLine").textContent = "Searching similar laptops...";
-      document.getElementById("statusLine").classList.add("typing");
-
-      document.getElementById("comparisonTableBody").innerHTML = `
-        <tr class="loading-row"><td colspan="9">Loading</td></tr>
-        <tr class="loading-row"><td colspan="9">Loading</td></tr>
-        <tr class="loading-row"><td colspan="9">Loading</td></tr>
-        <tr class="loading-row"><td colspan="9">Loading</td></tr>
-      `;
-
-      document.getElementById("newjaisaList").innerHTML = `
-        <li>Loading...</li><li>Loading...</li><li>Loading...</li><li>Loading...</li>
-      `;
-      document.getElementById("userList").innerHTML = `
-        <li>Loading...</li><li>Loading...</li><li>Loading...</li><li>Loading...</li>
-      `;
-      document.getElementById("advList").innerHTML = `
-        <li>Loading...</li><li>Loading...</li><li>Loading...</li><li>Loading...</li>
-      `;
-
-      document.getElementById("altGrid").innerHTML = `
-        <div class="alt-card loading"></div>
-        <div class="alt-card loading"></div>
-        <div class="alt-card loading"></div>
-      `;
-
-      document.getElementById("ctaTitle").textContent = "Loading recommendation...";
-      document.getElementById("ctaText").textContent = "Please wait while AI finds competitors.";
-      document.getElementById("ctaBtn").textContent = "Loading...";
-    }
-
-    function setErrorState(message) {
-      document.getElementById("comparisonHeading").textContent = "Could not load comparison";
-      document.getElementById("comparisonChip").textContent = "Error";
-      document.getElementById("bannerMain").textContent = "Unable to load value comparison";
-      document.getElementById("bannerSub").innerHTML = `<small>${message}</small>`;
-      document.getElementById("statusLine").textContent = message;
-      document.getElementById("statusLine").classList.remove("typing");
-      document.getElementById("comparisonTableBody").innerHTML = "";
-      document.getElementById("altGrid").innerHTML = `
-        <div class="alt-card">
-          <h4>Unable to load alternatives</h4>
-          <div class="alt-reason">${message}</div>
-        </div>
-      `;
-    }
-
-    async function animateProgress() {
-      const steps = [
-        "Searching similar laptops...",
-        "Finding competitors in same category...",
-        "Checking nearby price range...",
-        "Comparing RAM, storage and GPU...",
-        "Calculating value score...",
-        "Preparing final comparison..."
-      ];
-
-      const statusEl = document.getElementById("statusLine");
-
-      for (const step of steps) {
-        statusEl.textContent = step;
-        await new Promise(resolve => setTimeout(resolve, 650));
-      }
-    }
-
-    const select = document.getElementById("modelSelect");
-    Object.entries(DEMO_PAYLOADS).forEach(([key, payload]) => {
-      const option = document.createElement("option");
-      option.value = key;
-      option.textContent = payload.selected_model.product_title;
-      select.appendChild(option);
-    });
 
     async function loadWidget() {
       try {
         setLoadingState();
-        const progressPromise = animateProgress();
+        const select = document.getElementById("modelSelect");
+        Object.entries(DEMO_PAYLOADS).forEach(([key, payload]) => {
+          const option = document.createElement("option");
+          option.value = key;
+          option.textContent = payload.selected_model.product_title;
+          select.appendChild(option);
+        });
 
-        const payload = DEMO_PAYLOADS[select.value];
-        const model = payload.selected_model;
+        select.addEventListener("change", loadWidget);
+        select.value = "dell7420";
 
+        const model = DEMO_PAYLOADS[select.value].selected_model;
         const res = await fetch("/api/compare", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(DEMO_PAYLOADS[select.value])
         });
 
         const data = await res.json();
-        await progressPromise;
 
         if (!res.ok) {
           setErrorState(data.error || "API error");
@@ -720,7 +635,9 @@
           tbody.appendChild(newRow);
         });
 
-        renderAlternatives(data.alternatives || []);
+        const alternatives = await fetchAlternativeModels(model.our_price, model.category);
+        renderAlternatives(alternatives);
+
       } catch (err) {
         console.error(err);
         setErrorState(err.message || "Request failed");
