@@ -28,7 +28,6 @@ export default async function handler(req, res) {
     const selectedCategory = String(selected_model.category || "").toLowerCase();
     const ourPrice = Number(selected_model.our_price || 0);
 
-    // Filter candidates by category
     let filteredCandidates = new_laptop_candidates.filter(item => {
       if (!item || !item.product_title || !item.specs || !item.price) return false;
 
@@ -41,7 +40,6 @@ export default async function handler(req, res) {
       return itemCategory !== "gaming";
     });
 
-    // Filter by nearby price band
     if (ourPrice > 0) {
       filteredCandidates = filteredCandidates.filter(item => {
         const p = Number(item.price || 0);
@@ -49,12 +47,10 @@ export default async function handler(req, res) {
       });
     }
 
-    // Fallback if too strict
     if (!filteredCandidates.length) {
       filteredCandidates = new_laptop_candidates.slice(0, 6);
     }
 
-    // Main table gets top 3 candidates
     const comparisonCandidates = filteredCandidates.slice(0, 3);
 
     const input = {
