@@ -47,21 +47,6 @@
       font-size: 13px;
     }
 
-    .switcher label {
-      display: block;
-      font-size: 11px;
-      margin-bottom: 6px;
-      color: #dbeafe;
-      font-weight: 700;
-    }
-
-    .switcher select {
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: none;
-      min-width: 250px;
-    }
-
     .banner {
       margin: 16px 18px 0;
       background: linear-gradient(135deg, #16a34a, #22c55e);
@@ -278,10 +263,6 @@
         <h1>Refurbished vs New: better value</h1>
         <p>See why this refurbished laptop beats similarly priced new laptops on specs and value.</p>
       </div>
-      <div class="switcher">
-        <label for="modelSelect">Change laptop model</label>
-        <select id="modelSelect"></select>
-      </div>
     </div>
 
     <div class="banner">
@@ -333,7 +314,7 @@
     </div>
 
     <div class="alt-section">
-      <h3>Alternative options</h3>
+      <h3>Other new laptops in this range</h3>
       <div class="alt-grid" id="altGrid"></div>
     </div>
 
@@ -347,12 +328,20 @@
   </div>
 
   <script>
-    const models = {
-      dell7420: {
+    /*
+      FOR LOCAL / VERCEL TESTING:
+      Keep this payload block.
+
+      FOR SHOPIFY:
+      Replace this whole block with Liquid-inserted payload.
+    */
+    window.NJ_WIDGET_PAYLOAD = {
+      selected_model: {
         id: "dell7420",
         product_title: "Dell Latitude 7420 Refurbished",
         brand_name: "NewJaisa",
         our_price: 27999,
+        category: "business",
         specs: {
           processor: "Intel Core i5 11th Gen",
           ram: "16 GB",
@@ -360,175 +349,75 @@
           display: "14 inch FHD",
           gpu: "Intel Iris Xe",
           os: "Windows 11 Pro"
-        },
-        comparable_new: [
-          {
-            model: "Acer Aspire Lite",
-            condition: "New",
+        }
+      },
+      new_laptop_candidates: [
+        {
+          id: "acer-aspire-lite",
+          product_title: "Acer Aspire Lite",
+          condition: "New",
+          category: "business",
+          price: 29999,
+          specs: {
             processor: "Intel Core i3 12th Gen",
             ram: "8 GB",
             storage: "512 GB SSD",
-            display_gpu: "15.6 inch FHD / Integrated",
-            price: 29999
-          },
-          {
-            model: "Lenovo V15",
-            condition: "New",
+            display: "15.6 inch FHD",
+            gpu: "Integrated"
+          }
+        },
+        {
+          id: "lenovo-v15",
+          product_title: "Lenovo V15",
+          condition: "New",
+          category: "business",
+          price: 28999,
+          specs: {
             processor: "Intel Core i3 11th Gen",
             ram: "8 GB",
             storage: "512 GB SSD",
-            display_gpu: "15.6 inch FHD / Integrated",
-            price: 28999
-          },
-          {
-            model: "HP 15",
-            condition: "New",
+            display: "15.6 inch FHD",
+            gpu: "Integrated"
+          }
+        },
+        {
+          id: "hp-15",
+          product_title: "HP 15",
+          condition: "New",
+          category: "business",
+          price: 30999,
+          specs: {
             processor: "Intel Core i3 12th Gen",
             ram: "8 GB",
             storage: "256 GB SSD",
-            display_gpu: "15.6 inch FHD / Integrated",
-            price: 30999
+            display: "15.6 inch FHD",
+            gpu: "Integrated"
           }
-        ]
-      },
-      hp840g5: {
-        id: "hp840g5",
-        product_title: "HP EliteBook 840 G5 Refurbished",
-        brand_name: "NewJaisa",
-        our_price: 24999,
-        specs: {
-          processor: "Intel Core i5 8th Gen",
-          ram: "8 GB",
-          storage: "256 GB SSD",
-          display: "14 inch FHD",
-          gpu: "Intel UHD Graphics",
-          os: "Windows 11 Pro"
         },
-        comparable_new: [
-          {
-            model: "Lenovo V14",
-            condition: "New",
-            processor: "Intel Core i3 11th Gen",
-            ram: "8 GB",
-            storage: "256 GB SSD",
-            display_gpu: "14 inch FHD / Integrated",
-            price: 26999
-          },
-          {
-            model: "Acer One 14",
-            condition: "New",
-            processor: "Intel Core i3",
-            ram: "8 GB",
-            storage: "512 GB SSD",
-            display_gpu: "14 inch FHD / Integrated",
-            price: 25999
-          },
-          {
-            model: "ASUS Vivobook Go",
-            condition: "New",
+        {
+          id: "asus-vivobook-go",
+          product_title: "ASUS Vivobook Go",
+          condition: "New",
+          category: "business",
+          price: 31999,
+          specs: {
             processor: "Ryzen 3",
             ram: "8 GB",
             storage: "512 GB SSD",
-            display_gpu: "15.6 inch FHD / Integrated",
-            price: 27999
+            display: "15.6 inch FHD",
+            gpu: "Integrated"
           }
-        ]
-      },
-      t480: {
-        id: "t480",
-        product_title: "Lenovo ThinkPad T480 Refurbished",
-        brand_name: "NewJaisa",
-        our_price: 23999,
-        specs: {
-          processor: "Intel Core i5 8th Gen",
-          ram: "8 GB",
-          storage: "512 GB SSD",
-          display: "14 inch FHD",
-          gpu: "Intel UHD Graphics",
-          os: "Windows 11 Pro"
-        },
-        comparable_new: [
-          {
-            model: "Acer Aspire 3",
-            condition: "New",
-            processor: "Intel Core i3 11th Gen",
-            ram: "8 GB",
-            storage: "256 GB SSD",
-            display_gpu: "15.6 inch FHD / Integrated",
-            price: 25999
-          },
-          {
-            model: "HP 14s",
-            condition: "New",
-            processor: "Intel Core i3 11th Gen",
-            ram: "8 GB",
-            storage: "256 GB SSD",
-            display_gpu: "14 inch FHD / Integrated",
-            price: 26999
-          },
-          {
-            model: "Lenovo IdeaPad Slim 3",
-            condition: "New",
-            processor: "Ryzen 3",
-            ram: "8 GB",
-            storage: "512 GB SSD",
-            display_gpu: "15.6 inch FHD / Integrated",
-            price: 28999
-          }
-        ]
-      },
-      gamingg15: {
-        id: "gamingg15",
-        product_title: "Dell G15 Gaming Laptop Refurbished",
-        brand_name: "NewJaisa",
-        our_price: 52999,
-        specs: {
-          processor: "Intel Core i5 12th Gen",
-          ram: "16 GB",
-          storage: "512 GB SSD",
-          display: "15.6 inch FHD 120Hz",
-          gpu: "NVIDIA RTX 3050",
-          os: "Windows 11"
-        },
-        comparable_new: [
-          {
-            model: "MSI Thin",
-            condition: "New",
-            processor: "Intel Core i5 11th Gen",
-            ram: "8 GB",
-            storage: "512 GB SSD",
-            display_gpu: "15.6 inch FHD / GTX 1650",
-            price: 57999
-          },
-          {
-            model: "ASUS TUF Entry Variant",
-            condition: "New",
-            processor: "Ryzen 5",
-            ram: "8 GB",
-            storage: "512 GB SSD",
-            display_gpu: "15.6 inch FHD / RTX 2050",
-            price: 59999
-          },
-          {
-            model: "HP Victus Entry Variant",
-            condition: "New",
-            processor: "Intel Core i5 12th Gen",
-            ram: "8 GB",
-            storage: "512 GB SSD",
-            display_gpu: "15.6 inch FHD / RTX 2050",
-            price: 61999
-          }
-        ]
-      }
+        }
+      ]
     };
 
-    const select = document.getElementById("modelSelect");
-    Object.entries(models).forEach(([key, value]) => {
-      const option = document.createElement("option");
-      option.value = key;
-      option.textContent = value.product_title;
-      select.appendChild(option);
-    });
+    function formatPrice(v) {
+      return "₹" + Number(v).toLocaleString("en-IN");
+    }
+
+    function scoreBadge(score, good = true) {
+      return `<span class="score ${good ? "" : "score-low"}">${score}/10</span>`;
+    }
 
     function fillList(id, items = []) {
       const el = document.getElementById(id);
@@ -540,14 +429,6 @@
       });
     }
 
-    function formatPrice(v) {
-      return "₹" + Number(v).toLocaleString("en-IN");
-    }
-
-    function scoreBadge(score, good = true) {
-      return `<span class="score ${good ? "" : "score-low"}">${score}/10</span>`;
-    }
-
     function renderAlternatives(items = []) {
       const altGrid = document.getElementById("altGrid");
       altGrid.innerHTML = "";
@@ -556,7 +437,7 @@
         altGrid.innerHTML = `
           <div class="alt-card">
             <h4>No alternatives available</h4>
-            <div class="alt-reason">Try another model to see nearby options.</div>
+            <div class="alt-reason">No suitable new-laptop alternatives were returned.</div>
           </div>
         `;
         return;
@@ -567,7 +448,7 @@
         card.className = "alt-card";
         card.innerHTML = `
           <h4>${item.product_title}</h4>
-          <div class="alt-price">${item.price_text || formatPrice(item.our_price)}</div>
+          <div class="alt-price">${item.price_text || formatPrice(item.price)}</div>
           <div class="alt-reason">${item.reason || ""}</div>
         `;
         altGrid.appendChild(card);
@@ -576,12 +457,8 @@
 
     async function loadWidget() {
       try {
-        const model = models[select.value || "dell7420"];
-
-        const payload = {
-          selected_model: model,
-          catalog: Object.values(models)
-        };
+        const payload = window.NJ_WIDGET_PAYLOAD;
+        const model = payload.selected_model;
 
         const res = await fetch("/api/compare", {
           method: "POST",
@@ -593,7 +470,7 @@
 
         if (!res.ok) {
           document.getElementById("comparisonHeading").textContent = "Could not load comparison";
-          document.getElementById("comparisonChip").textContent = "API error";
+          document.getElementById("comparisonChip").textContent = data.error || "API error";
           return;
         }
 
@@ -634,15 +511,15 @@
         `;
         tbody.appendChild(refurbRow);
 
-        (model.comparable_new || []).forEach((item, idx) => {
+        (data.comparison_candidates || []).forEach((item, idx) => {
           const newRow = document.createElement("tr");
           newRow.innerHTML = `
-            <td><strong>${item.model}</strong></td>
-            <td>${item.condition}</td>
-            <td>${item.processor}</td>
-            <td>${item.ram}</td>
-            <td>${item.storage}</td>
-            <td>${item.display_gpu}</td>
+            <td><strong>${item.product_title}</strong></td>
+            <td>${item.condition || "New"}</td>
+            <td>${item.specs.processor || "-"}</td>
+            <td>${item.specs.ram || "-"}</td>
+            <td>${item.specs.storage || "-"}</td>
+            <td>${item.specs.display || "-"} / ${item.specs.gpu || "-"}</td>
             <td>${formatPrice(item.price)}</td>
             <td>${scoreBadge((ai.new_value_scores && ai.new_value_scores[idx]) || 6, false)}</td>
             <td>${(ai.new_verdicts && ai.new_verdicts[idx]) || "Higher price for lower specs"}</td>
@@ -654,12 +531,10 @@
       } catch (err) {
         console.error(err);
         document.getElementById("comparisonHeading").textContent = "Frontend error";
-        document.getElementById("comparisonChip").textContent = "Request failed";
+        document.getElementById("comparisonChip").textContent = err.message;
       }
     }
 
-    select.addEventListener("change", loadWidget);
-    select.value = "dell7420";
     loadWidget();
   </script>
 </body>

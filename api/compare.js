@@ -15,7 +15,9 @@ export default async function handler(req, res) {
 
     const body = req.body || {};
     const selected_model = body.selected_model || null;
-    const catalog = Array.isArray(body.catalog) ? body.catalog : [];
+    const new_laptop_candidates = Array.isArray(body.new_laptop_candidates)
+      ? body.new_laptop_candidates
+      : [];
 
     if (!selected_model || !selected_model.product_title || !selected_model.specs) {
       return res.status(400).json({
@@ -23,17 +25,41 @@ export default async function handler(req, res) {
       });
     }
 
-    const selectedId = selected_model.id || null;
-    const alternativesPool = catalog.filter(item => item.id !== selectedId);
+    const selectedCategory = (selected_model.category || "").toLowerCase();
+
+    // Keep only new laptops in the same broad category
+    let filteredCandidates = new_laptop_candidates.filter(item => {
+      if (!item || !item.product_title || !item.specs || !item.price) return false;
+      const itemCategory = String(item.category || "").toLowerCase();
+
+      if (selectedCategory === "gaming") {
+        return itemCategory === "gaming";
+      }
+
+      return itemCategory !== "gaming";
+    });
+
+    // Keep candidates in a nearby price band
+    const ourPrice = Number(selected_model.our_price || 0);
+    if (ourPrice > 0) {
+      filteredCandidates = filteredCandidates.filter(item => {
+        const p = Number(item.price || 0);
+        return p >= Math.round(ourPrice * 0.9) && p <= Math.round(ourPrice * 1.35);
+      });
+    }
+
+    // Fallback to first few if filtering becomes too strict
+    if (!filteredCandidates.length) {
+      filteredCandidates = new_laptop_candidates.slice(0, 6);
+    }
+
+    // Main comparison set = best 3 candidates only
+    const comparisonCandidates = filteredCandidates.slice(0, 3);
 
     const input = {
       selected_model,
-      alternatives_pool: alternativesPool.map(item => ({
-        id: item.id,
-        product_title: item.product_title,
-        our_price: item.our_price,
-        specs: item.specs
-      })),
+      comparison_candidates: comparisonCandidates,
+      alternatives_pool: filteredCandidates,
       newjaisa_points: [
         "72-point quality check",
         "1-year warranty",
@@ -48,13 +74,15 @@ You are generating customer-facing content for a NewJaisa refurbished laptop com
 
 The widget compares:
 - 1 refurbished laptop from NewJaisa
-- 3 similarly priced new laptops with similar or lower specs
+- 3 similarly priced NEW laptops in the same category
 
 Your goal:
 - clearly show why the refurbished laptop is a better value buy
 - keep the message simple and customer-focused
 - emphasize price-to-spec advantage
-- avoid unnecessary sections or jargon
+- if the selected laptop is gaming, compare against gaming laptops only
+- if the selected laptop is non-gaming, compare against non-gaming new laptops
+- choose up to 3 alternatives from alternatives_pool that are new laptops only
 
 Input:
 ${JSON.stringify(input, null, 2)}
@@ -91,6 +119,7 @@ Rules:
 - do not invent live marketplace prices
 - keep value scores realistic
 - new laptop verdicts should highlight tradeoffs
+- alternatives must be NEW laptops only
 `;
 
     if (!process.env.OPENAI_API_KEY) {
@@ -150,29 +179,36 @@ Rules:
     }
 
     let alternatives = (parsed.alternatives || []).map(alt => {
-      const match = catalog.find(item => item.id === alt.id);
+      const match = filteredCandidates.find(item => item.id === alt.id);
       if (!match) return null;
       return {
         id: match.id,
         product_title: match.product_title,
-        our_price: match.our_price,
-        price_text: match.our_price ? `₹${Number(match.our_price).toLocaleString("en-IN")}` : "",
+        price: match.price,
+        price_text: match.price ? `₹${Number(match.price).toLocaleString("en-IN")}` : "",
+        condition: match.condition || "New",
+        category: match.category || "",
+        specs: match.specs || {},
         reason: alt.reason || ""
       };
     }).filter(Boolean);
 
     if (!alternatives.length) {
-      alternatives = alternativesPool.slice(0, 3).map(item => ({
+      alternatives = filteredCandidates.slice(0, 3).map(item => ({
         id: item.id,
         product_title: item.product_title,
-        our_price: item.our_price,
-        price_text: item.our_price ? `₹${Number(item.our_price).toLocaleString("en-IN")}` : "",
-        reason: "A relevant alternative in a nearby budget or usage range."
+        price: item.price,
+        price_text: item.price ? `₹${Number(item.price).toLocaleString("en-IN")}` : "",
+        condition: item.condition || "New",
+        category: item.category || "",
+        specs: item.specs || {},
+        reason: "A nearby new-laptop option in a similar budget range."
       }));
     }
 
     return res.status(200).json({
       selected_model,
+      comparison_candidates: comparisonCandidates,
       ai: parsed,
       alternatives
     });
