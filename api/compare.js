@@ -31,43 +31,26 @@ export default async function handler(req, res) {
     const category = String(selected_model.category || "").toLowerCase();
     const ourPrice = Number(selected_model.our_price || 0);
 
+    // Fetching competitors using OpenAI
     const competitorPrompt = `
-You are a laptop market analyst.
+      You are a laptop market analyst. Find 6 NEW laptops in India that compete with this refurbished laptop.
 
-Find 6 NEW laptops sold in India that compete with this refurbished laptop.
+      Refurbished laptop details:
+      ${JSON.stringify(selected_model, null, 2)}
 
-Selected refurbished laptop:
-${JSON.stringify(selected_model, null, 2)}
+      Rules:
+      - Return only NEW laptops
+      - Price must be 90% to 135% of the refurb price
+      - Category: If "gaming", return gaming laptops; if "business", return business laptops
+      - Only use popular, realistic models available in the market
 
-Rules:
-- If category is gaming, return gaming laptops only
-- If category is business, portable, creator, or mainstream, return non-gaming laptops that fit that category
-- Keep the price roughly between 90% and 135% of the refurb price
-- Return realistic laptop model families commonly sold in India
-- Return only NEW laptops
-- Do not return the refurbished laptop itself
-- Keep specs realistic and concise
-
-Return valid JSON only in this exact structure:
-{
-  "candidates": [
-    {
-      "id": "string",
-      "product_title": "string",
-      "condition": "New",
-      "category": "string",
-      "price": 0,
-      "specs": {
-        "processor": "string",
-        "ram": "string",
-        "storage": "string",
-        "display": "string",
-        "gpu": "string"
+      Return only this structure:
+      {
+        "candidates": [
+          { "id": "string", "product_title": "string", "category": "string", "price": "number", "specs": { "processor": "string", "ram": "string", "storage": "string", "display": "string", "gpu": "string" } }
+        ]
       }
-    }
-  ]
-}
-`;
+    `;
 
     const competitorResponse = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
@@ -78,9 +61,7 @@ Return valid JSON only in this exact structure:
       body: JSON.stringify({
         model: "gpt-5.4",
         input: competitorPrompt,
-        text: {
-          format: { type: "json_object" }
-        }
+        text: { format: { type: "json_object" } }
       })
     });
 
@@ -110,19 +91,9 @@ Return valid JSON only in this exact structure:
       });
     }
 
-    let candidates = Array.isArray(competitorParsed.candidates)
-      ? competitorParsed.candidates
-      : [];
-
+    let candidates = Array.isArray(competitorParsed.candidates) ? competitorParsed.candidates : [];
     candidates = candidates.filter(item => {
-      if (!item || !item.product_title || !item.specs || !item.price) return false;
-      const itemCategory = String(item.category || "").toLowerCase();
-
-      if (category === "gaming") {
-        return itemCategory === "gaming";
-      }
-
-      return itemCategory !== "gaming";
+      return item && item.product_title && item.specs && item.price;
     });
 
     if (ourPrice > 0) {
@@ -132,174 +103,75 @@ Return valid JSON only in this exact structure:
       });
     }
 
-    if (!candidates.length) {
-      return res.status(200).json({
-        selected_model,
-        comparison_candidates: [],
-        ai: {
-          banner_main: "No close market matches found",
-          banner_sub: "The selected laptop could not be matched reliably with similar new laptops right now.",
-          price_comparison: {
-            comparison_note: "Limited comparison data"
-          },
-          why_buy_from_newjaisa: [
-            "72-point quality check",
-            "1-year warranty included",
-            "14-day replacement support",
-            "Lifetime buyback value"
-          ],
-          best_for_users: [
-            "Value-focused buyers",
-            "Students",
-            "Office users",
-            "Everyday multitaskers"
-          ],
-          advantages: [
-            "Better price-to-spec value",
-            "Refurbished quality checks",
-            "Warranty-backed purchase",
-            "Useful daily performance"
-          ],
-          refurb_value_score: 8,
-          refurb_verdict: "Strong value option in its budget.",
-          new_value_scores: [],
-          new_verdicts: [],
-          alternatives: [],
-          cta_title: "Buy smarter with NewJaisa",
-          cta_text: "Choose a refurbished laptop that offers stronger value at this budget.",
-          cta_button: "Buy Now"
-        },
-        alternatives: []
-      });
-    }
-
     const comparisonCandidates = candidates.slice(0, 3);
     const alternativesPool = candidates.slice(3);
 
+    // Generate reasoning for the widget
     const reasoningPrompt = `
-You are generating customer-facing content for a NewJaisa refurbished laptop comparison widget.
+      You are generating customer-facing content for a NewJaisa refurbished laptop comparison widget.
 
-The widget compares:
-- 1 refurbished laptop from NewJaisa
-- 3 similarly priced NEW laptops in the same category
+      The widget compares:
+      - 1 refurbished laptop from NewJaisa
+      - 3 similarly priced NEW laptops in the same category
 
-Selected refurbished laptop:
-${JSON.stringify(selected_model, null, 2)}
+      Refurbished laptop:
+      ${JSON.stringify(selected_model, null, 2)}
 
-Comparison candidates:
-${JSON.stringify(comparisonCandidates, null, 2)}
+      Comparison candidates:
+      ${JSON.stringify(comparisonCandidates, null, 2)}
 
-Alternative pool:
-${JSON.stringify(alternativesPool, null, 2)}
+      NewJaisa trust points:
+      - 72-point quality check
+      - 1-year warranty
+      - 14-day return and replacement
+      - lifetime buyback guarantee
+      - Quick Heal security / data protection
 
-NewJaisa trust points:
-- 72-point quality check
-- 1-year warranty
-- 14-day return and replacement
-- lifetime buyback guarantee
-- Quick Heal security / data protection positioning
-
-Return valid JSON only in exactly this structure:
-{
-  "banner_main": "string",
-  "banner_sub": "string",
-  "price_comparison": {
-    "comparison_note": "string"
-  },
-  "why_buy_from_newjaisa": ["string", "string", "string", "string"],
-  "best_for_users": ["string", "string", "string", "string"],
-  "advantages": ["string", "string", "string", "string"],
-  "refurb_value_score": 9,
-  "refurb_verdict": "string",
-  "new_value_scores": [6, 6, 5],
-  "new_verdicts": ["string", "string", "string"],
-  "alternatives": [
-    {
-      "id": "string",
-      "reason": "string"
-    }
-  ],
-  "cta_title": "string",
-  "cta_text": "string",
-  "cta_button": "string"
-}
-
-Rules:
-- keep all lines compact
-- emphasize that refurb can give better specs at the same budget
-- do not invent policies beyond input
-- keep value scores realistic
-- alternatives must use IDs from the alternative pool when available
-`;
+      Return valid JSON only in this structure:
+      {
+        "banner_main": "string",
+        "banner_sub": "string",
+        "price_comparison": { "comparison_note": "string" },
+        "why_buy_from_newjaisa": ["string", "string", "string"],
+        "best_for_users": ["string", "string", "string"],
+        "advantages": ["string", "string", "string"],
+        "refurb_value_score": 9,
+        "new_value_scores": [6, 6, 5],
+        "alternatives": [{"id": "string", "reason": "string"}],
+        "cta_title": "string",
+        "cta_text": "string",
+        "cta_button": "string"
+      }
+    `;
 
     const reasoningResponse = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-      },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.OPENAI_API_KEY}` },
       body: JSON.stringify({
         model: "gpt-5.4",
         input: reasoningPrompt,
-        text: {
-          format: { type: "json_object" }
-        }
+        text: { format: { type: "json_object" } }
       })
     });
 
     const reasoningData = await reasoningResponse.json();
-
-    if (!reasoningResponse.ok || reasoningData?.error) {
-      return res.status(500).json({
-        error: "Failed to generate comparison reasoning",
-        raw: reasoningData
-      });
-    }
-
     const reasoningRaw = reasoningData?.output?.[0]?.content?.[0]?.text;
-    if (!reasoningRaw) {
-      return res.status(500).json({
-        error: "No reasoning data returned"
-      });
-    }
-
     let parsed;
     try {
       parsed = JSON.parse(reasoningRaw);
     } catch (err) {
-      return res.status(500).json({
-        error: "Reasoning JSON parse failed",
-        rawText: reasoningRaw
-      });
+      return res.status(500).json({ error: "Reasoning JSON parse failed", rawText: reasoningRaw });
     }
 
-    let alternatives = (parsed.alternatives || []).map(alt => {
-      const match = candidates.find(item => item.id === alt.id);
-      if (!match) return null;
-      return {
-        id: match.id,
-        product_title: match.product_title,
-        price: match.price,
-        price_text: match.price ? `₹${Number(match.price).toLocaleString("en-IN")}` : "",
-        condition: match.condition || "New",
-        category: match.category || "",
-        specs: match.specs || {},
-        reason: alt.reason || ""
-      };
-    }).filter(Boolean);
-
-    if (!alternatives.length) {
-      alternatives = candidates.slice(3, 6).map(item => ({
-        id: item.id,
-        product_title: item.product_title,
-        price: item.price,
-        price_text: item.price ? `₹${Number(item.price).toLocaleString("en-IN")}` : "",
-        condition: item.condition || "New",
-        category: item.category || "",
-        specs: item.specs || {},
-        reason: "A nearby new-laptop option in a similar budget range."
-      }));
-    }
+    const alternatives = (parsed.alternatives || []).map(alt => ({
+      id: alt.id,
+      product_title: alt.product_title,
+      price: alt.price,
+      price_text: alt.price ? `₹${Number(alt.price).toLocaleString("en-IN")}` : "",
+      condition: alt.condition || "New",
+      specs: alt.specs || {},
+      reason: alt.reason || ""
+    }));
 
     return res.status(200).json({
       selected_model,

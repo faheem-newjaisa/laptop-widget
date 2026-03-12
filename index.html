@@ -438,296 +438,136 @@
     </div>
 
     <div class="status-box">
-      <div class="status-title">AI market search status</div>
-      <div class="status-line typing" id="statusLine">Waiting to start...</div>
+      <h3 class="status-title">Loading...</h3>
+      <div class="status-line" id="statusText">Fetching competitors...</div>
     </div>
 
     <div class="comparison-wrap">
       <div class="comparison-title">
-        <h2 id="comparisonHeading">Value comparison</h2>
-        <div class="chip" id="comparisonChip">Finding competitors</div>
+        <h2 id="comparisonHeading">Comparison</h2>
+        <div class="chip" id="comparisonChip">Price: ₹xx,xxx</div>
       </div>
 
       <div class="table-wrap">
         <table>
-          <tbody id="comparisonTableBody"></tbody>
+          <thead>
+            <tr>
+              <th>Laptop Model</th>
+              <th>Price</th>
+              <th>Verdict</th>
+            </tr>
+          </thead>
+          <tbody id="comparisonTableBody">
+            <!-- Table rows will be inserted here -->
+          </tbody>
         </table>
       </div>
     </div>
 
-    <div class="grid">
-      <div class="card">
-        <h3>Why buy from NewJaisa</h3>
-        <ul id="newjaisaList"></ul>
-      </div>
-
-      <div class="card">
-        <h3>Best for users</h3>
-        <ul id="userList"></ul>
-      </div>
-
-      <div class="card">
-        <h3>Key advantages</h3>
-        <ul id="advList"></ul>
-      </div>
-    </div>
-
     <div class="alt-section">
-      <h3>Other new laptops in this range</h3>
-      <div class="alt-grid" id="altGrid"></div>
+      <h3>Suggested Alternatives</h3>
+      <div class="alt-grid" id="altGrid">
+        <!-- Alternatives will be listed here -->
+      </div>
     </div>
 
     <div class="footer">
       <div>
-        <h3 id="ctaTitle">Loading CTA...</h3>
-        <p id="ctaText">Please wait...</p>
+        <h3>Ready to Buy?</h3>
+        <p>Get the best deal on refurbished laptops!</p>
       </div>
       <a href="#" id="ctaBtn">Buy Now</a>
     </div>
   </div>
 
   <script>
+    const select = document.getElementById("modelSelect");
+
     const DEMO_PAYLOADS = {
       dell7420: {
         selected_model: {
-          id: "dell7420",
           product_title: "Dell Latitude 7420 Refurbished",
-          brand_name: "NewJaisa",
-          our_price: 27999,
           category: "business",
+          our_price: 27999,
           specs: {
             processor: "Intel Core i5 11th Gen",
             ram: "16 GB",
             storage: "512 GB SSD",
             display: "14 inch FHD",
-            gpu: "Intel Iris Xe",
-            os: "Windows 11 Pro"
-          }
-        }
-      },
-
-      t480: {
-        selected_model: {
-          id: "t480",
-          product_title: "Lenovo ThinkPad T480 Refurbished",
-          brand_name: "NewJaisa",
-          our_price: 23999,
-          category: "business",
-          specs: {
-            processor: "Intel Core i5 8th Gen",
-            ram: "8 GB",
-            storage: "512 GB SSD",
-            display: "14 inch FHD",
-            gpu: "Intel UHD Graphics",
-            os: "Windows 11 Pro"
-          }
-        }
-      },
-
-      gamingg15: {
-        selected_model: {
-          id: "gamingg15",
-          product_title: "Dell G15 Gaming Laptop Refurbished",
-          brand_name: "NewJaisa",
-          our_price: 52999,
-          category: "gaming",
-          specs: {
-            processor: "Intel Core i5 12th Gen",
-            ram: "16 GB",
-            storage: "512 GB SSD",
-            display: "15.6 inch FHD 120Hz",
-            gpu: "NVIDIA RTX 3050",
-            os: "Windows 11"
-          }
-        }
-      },
-
-      macair: {
-        selected_model: {
-          id: "macair",
-          product_title: "MacBook Air Refurbished",
-          brand_name: "NewJaisa",
-          our_price: 42999,
-          category: "portable",
-          specs: {
-            processor: "Intel Core i5",
-            ram: "8 GB",
-            storage: "256 GB SSD",
-            display: "13.3 inch Retina",
-            gpu: "Integrated",
-            os: "macOS"
-          }
-        }
-      },
-
-      creatorbook: {
-        selected_model: {
-          id: "creatorbook",
-          product_title: "ASUS Creator Laptop Refurbished",
-          brand_name: "NewJaisa",
-          our_price: 64999,
-          category: "creator",
-          specs: {
-            processor: "Intel Core i7 11th Gen",
-            ram: "16 GB",
-            storage: "1 TB SSD",
-            display: "15.6 inch FHD",
-            gpu: "NVIDIA GTX 1650",
-            os: "Windows 11 Pro"
+            gpu: "Intel Iris Xe"
           }
         }
       }
     };
 
-    function formatPrice(v) {
-      return "₹" + Number(v).toLocaleString("en-IN");
-    }
+    Object.entries(DEMO_PAYLOADS).forEach(([key, value]) => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = value.selected_model.product_title;
+      select.appendChild(option);
+    });
 
-    function scoreBadge(score, good = true) {
-      return `<span class="score ${good ? "" : "score-low"}">${score}/10</span>`;
-    }
+    async function loadWidget() {
+      const model = DEMO_PAYLOADS[select.value || "dell7420"].selected_model;
+      document.getElementById("comparisonHeading").textContent = model.product_title;
+      document.getElementById("comparisonChip").textContent = `Price: ₹${formatPrice(model.our_price)}`;
+      
+      // Simulate word-by-word loading animation
+      await typeWords(document.getElementById("statusText"), "Fetching competitors and comparing models...");
 
-    function fillList(id, items = []) {
-      const el = document.getElementById(id);
-      el.innerHTML = "";
-      items.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        el.appendChild(li);
+      // Simulate competitor data fetching
+      const competitors = await getCompetitors(model);
+
+      // Populate comparison table
+      const comparisonTableBody = document.getElementById("comparisonTableBody");
+      comparisonTableBody.innerHTML = `
+        <tr>
+          <td>Refurbished Model</td>
+          <td class="compare-model">${model.product_title}</td>
+          <td class="compare-price">₹${model.our_price}</td>
+          <td class="compare-verdict">Better value for money</td>
+        </tr>
+      `;
+      competitors.forEach(competitor => {
+        comparisonTableBody.innerHTML += `
+          <tr>
+            <td>Competitor</td>
+            <td class="compare-model">${competitor.product_title}</td>
+            <td class="compare-price">₹${competitor.price}</td>
+            <td class="compare-verdict">${competitor.reason}</td>
+          </tr>
+        `;
       });
     }
 
-    function renderAlternatives(items = []) {
-      const altGrid = document.getElementById("altGrid");
-      altGrid.innerHTML = "";
-
-      if (!items.length) {
-        altGrid.innerHTML = `
-          <div class="alt-card">
-            <h4>No alternatives available</h4>
-            <div class="alt-reason">No suitable new-laptop alternatives were returned.</div>
-          </div>
-        `;
-        return;
-      }
-
-      items.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "alt-card";
-        card.innerHTML = `
-          <h4>${item.product_title}</h4>
-          <div class="alt-price">${item.price_text || formatPrice(item.price)}</div>
-          <div class="alt-reason">${item.reason || ""}</div>
-        `;
-        altGrid.appendChild(card);
-      });
+    async function getCompetitors(model) {
+      // Simulate API call to fetch competitors
+      return [
+        { product_title: "Competitor Model 1", price: 32000, reason: "Similar specs, slightly cheaper." },
+        { product_title: "Competitor Model 2", price: 35000, reason: "Newer model but lower specs." },
+        { product_title: "Competitor Model 3", price: 31000, reason: "Good alternative with lower price." }
+      ];
     }
 
     function sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async function typeWords(element, text, delay = 90) {
+    async function typeWords(element, text, delay = 100) {
       element.innerHTML = "";
-      const words = text.split(" ");
-
-      for (let i = 0; i < words.length; i++) {
-        const span = document.createElement("span");
-        span.className = "typing-word";
-        span.textContent = words[i] + (i < words.length - 1 ? " " : "");
-        element.appendChild(span);
+      for (let i = 0; i < text.length; i++) {
+        element.innerHTML += text[i];
         await sleep(delay);
       }
     }
 
-    async function playLoadingSequence() {
-      const statusEl = document.getElementById("statusLine");
-      statusEl.classList.remove("typing");
-
-      const steps = [
-        "Searching similar new laptops in the same category.",
-        "Checking laptops in a similar price range.",
-        "Comparing processor, RAM, storage and graphics.",
-        "Calculating value scores and buyer fit.",
-        "Preparing the final comparison table."
-      ];
-
-      for (const step of steps) {
-        statusEl.textContent = step;
-        statusEl.classList.add("typing");
-        await sleep(1500);
-      }
-      statusEl.textContent = "Ready to go!";
-      statusEl.classList.remove("typing");
+    function formatPrice(v) {
+      if (v === null || v === undefined || Number.isNaN(Number(v))) return "—";
+      return "₹" + Number(v).toLocaleString("en-IN");
     }
 
-    async function loadWidget() {
-      await playLoadingSequence();
-
-      const model = DEMO_PAYLOADS[select.value || "dell7420"].selected_model;
-
-      document.getElementById("bannerMain").textContent = `💰 Smart buy at ₹${formatPrice(model.our_price)}`;
-      document.getElementById("bannerSub").textContent = `Compare with other options under ₹${formatPrice(model.our_price * 1.35)}`;
-
-      document.getElementById("comparisonHeading").textContent = model.product_title;
-
-      // Simulate filling the comparison table
-      const comparisonTableBody = document.getElementById("comparisonTableBody");
-      comparisonTableBody.innerHTML = `
-        <tr class="loading-row">
-          <td class="compare-label">Refurbished Model</td>
-          <td class="compare-model typing">${model.product_title}</td>
-          <td class="compare-price typing">${formatPrice(model.our_price)}</td>
-          <td class="compare-verdict typing">Better specs for the price</td>
-        </tr>
-        <tr class="loading-row">
-          <td class="compare-label">Competitor 1</td>
-          <td class="compare-model typing">Loading...</td>
-          <td class="compare-price typing">Loading...</td>
-          <td class="compare-verdict typing">Loading...</td>
-        </tr>
-        <tr class="loading-row">
-          <td class="compare-label">Competitor 2</td>
-          <td class="compare-model typing">Loading...</td>
-          <td class="compare-price typing">Loading...</td>
-          <td class="compare-verdict typing">Loading...</td>
-        </tr>
-      `;
-
-      await sleep(2000); // Simulate loading competitor data
-
-      // Fill the table with data once loading is done
-      comparisonTableBody.innerHTML = `
-        <tr>
-          <td class="compare-label">Refurbished Model</td>
-          <td class="compare-model">${model.product_title}</td>
-          <td class="compare-price">${formatPrice(model.our_price)}</td>
-          <td class="compare-verdict">Better specs for the price</td>
-        </tr>
-        <tr>
-          <td class="compare-label">Competitor 1</td>
-          <td class="compare-model">${"Model 1"}</td>
-          <td class="compare-price">${formatPrice(35000)}</td>
-          <td class="compare-verdict">Weaker specs</td>
-        </tr>
-        <tr>
-          <td class="compare-label">Competitor 2</td>
-          <td class="compare-model">${"Model 2"}</td>
-          <td class="compare-price">${formatPrice(38000)}</td>
-          <td class="compare-verdict">Higher price with lower specs</td>
-        </tr>
-      `;
-
-      renderAlternatives([
-        {
-          product_title: "Alternative Model 1",
-          price: 31999,
-          price_text: "₹31,999",
-          reason: "Competitor laptop at lower price point"
-        }
-      ]);
-    }
-
+    select.addEventListener("change", loadWidget);
+    select.value = "dell7420";
     loadWidget();
   </script>
 </body>
