@@ -15,9 +15,6 @@ export default async function handler(req, res) {
 
     const body = req.body || {};
     const selected_model = body.selected_model || null;
-    const new_laptop_candidates = Array.isArray(body.new_laptop_candidates)
-      ? body.new_laptop_candidates
-      : [];
 
     if (!selected_model || !selected_model.product_title || !selected_model.specs) {
       return res.status(400).json({
@@ -25,15 +22,104 @@ export default async function handler(req, res) {
       });
     }
 
-    const selectedCategory = String(selected_model.category || "").toLowerCase();
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({
+        error: "OPENAI_API_KEY missing in Vercel environment variables"
+      });
+    }
+
+    const category = String(selected_model.category || "").toLowerCase();
     const ourPrice = Number(selected_model.our_price || 0);
 
-    let filteredCandidates = new_laptop_candidates.filter(item => {
-      if (!item || !item.product_title || !item.specs || !item.price) return false;
+    const competitorPrompt = `
+You are a laptop market analyst.
 
+Find 6 NEW laptops sold in India that compete with this refurbished laptop.
+
+Selected refurbished laptop:
+${JSON.stringify(selected_model, null, 2)}
+
+Rules:
+- If category is gaming, return gaming laptops only
+- If category is business, portable, creator, or mainstream, return non-gaming laptops that fit that category
+- Keep the price roughly between 90% and 135% of the refurb price
+- Return realistic laptop model families commonly sold in India
+- Return only NEW laptops
+- Do not return the refurbished laptop itself
+- Keep specs realistic and concise
+
+Return valid JSON only in this exact structure:
+{
+  "candidates": [
+    {
+      "id": "string",
+      "product_title": "string",
+      "condition": "New",
+      "category": "string",
+      "price": 0,
+      "specs": {
+        "processor": "string",
+        "ram": "string",
+        "storage": "string",
+        "display": "string",
+        "gpu": "string"
+      }
+    }
+  ]
+}
+`;
+
+    const competitorResponse = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-5.4",
+        input: competitorPrompt,
+        text: {
+          format: { type: "json_object" }
+        }
+      })
+    });
+
+    const competitorData = await competitorResponse.json();
+
+    if (!competitorResponse.ok || competitorData?.error) {
+      return res.status(500).json({
+        error: "Failed to generate competitor laptops",
+        raw: competitorData
+      });
+    }
+
+    const competitorRaw = competitorData?.output?.[0]?.content?.[0]?.text;
+    if (!competitorRaw) {
+      return res.status(500).json({
+        error: "No competitor data returned"
+      });
+    }
+
+    let competitorParsed;
+    try {
+      competitorParsed = JSON.parse(competitorRaw);
+    } catch (err) {
+      return res.status(500).json({
+        error: "Competitor JSON parse failed",
+        rawText: competitorRaw
+      });
+    }
+
+    let candidates = Array.isArray(competitorParsed.candidates)
+      ? competitorParsed.candidates
+      : [];
+
+    // Safety filters
+    candidates = candidates.filter(item => {
+      if (!item || !item.product_title || !item.specs || !item.price) return false;
       const itemCategory = String(item.category || "").toLowerCase();
 
-      if (selectedCategory === "gaming") {
+      if (category === "gaming") {
         return itemCategory === "gaming";
       }
 
@@ -41,48 +127,37 @@ export default async function handler(req, res) {
     });
 
     if (ourPrice > 0) {
-      filteredCandidates = filteredCandidates.filter(item => {
+      candidates = candidates.filter(item => {
         const p = Number(item.price || 0);
         return p >= Math.round(ourPrice * 0.9) && p <= Math.round(ourPrice * 1.35);
       });
     }
 
-    if (!filteredCandidates.length) {
-      filteredCandidates = new_laptop_candidates.slice(0, 6);
-    }
+    const comparisonCandidates = candidates.slice(0, 3);
+    const alternativesPool = candidates.slice(3);
 
-    const comparisonCandidates = filteredCandidates.slice(0, 3);
-
-    const input = {
-      selected_model,
-      comparison_candidates: comparisonCandidates,
-      alternatives_pool: filteredCandidates,
-      newjaisa_points: [
-        "72-point quality check",
-        "1-year warranty",
-        "14-day return and replacement",
-        "lifetime buyback guarantee",
-        "Quick Heal security / data protection positioning"
-      ]
-    };
-
-    const prompt = `
+    const reasoningPrompt = `
 You are generating customer-facing content for a NewJaisa refurbished laptop comparison widget.
 
 The widget compares:
 - 1 refurbished laptop from NewJaisa
 - 3 similarly priced NEW laptops in the same category
 
-Your goal:
-- clearly show why the refurbished laptop is a better value buy
-- keep the message simple and customer-focused
-- emphasize price-to-spec advantage
-- if the selected laptop is gaming, compare against gaming laptops only
-- if the selected laptop is non-gaming, compare against non-gaming new laptops
-- choose up to 3 alternatives from alternatives_pool that are new laptops only
+Selected refurbished laptop:
+${JSON.stringify(selected_model, null, 2)}
 
-Input:
-${JSON.stringify(input, null, 2)}
+Comparison candidates:
+${JSON.stringify(comparisonCandidates, null, 2)}
+
+Alternative pool:
+${JSON.stringify(alternativesPool, null, 2)}
+
+NewJaisa trust points:
+- 72-point quality check
+- 1-year warranty
+- 14-day return and replacement
+- lifetime buyback guarantee
+- Quick Heal security / data protection positioning
 
 Return valid JSON only in exactly this structure:
 {
@@ -112,20 +187,12 @@ Return valid JSON only in exactly this structure:
 Rules:
 - keep all lines compact
 - emphasize that refurb can give better specs at the same budget
-- do not invent policies beyond the given input
-- do not invent live marketplace prices
+- do not invent policies beyond input
 - keep value scores realistic
-- new laptop verdicts should highlight tradeoffs
-- alternatives must be NEW laptops only
+- alternatives must use IDs from the alternative pool when available
 `;
 
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({
-        error: "OPENAI_API_KEY missing in Vercel environment variables"
-      });
-    }
-
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const reasoningResponse = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -133,50 +200,41 @@ Rules:
       },
       body: JSON.stringify({
         model: "gpt-5.4",
-        input: prompt,
+        input: reasoningPrompt,
         text: {
           format: { type: "json_object" }
         }
       })
     });
 
-    const data = await response.json();
+    const reasoningData = await reasoningResponse.json();
 
-    if (!response.ok) {
+    if (!reasoningResponse.ok || reasoningData?.error) {
       return res.status(500).json({
-        error: "OpenAI request failed",
-        raw: data
+        error: "Failed to generate comparison reasoning",
+        raw: reasoningData
       });
     }
 
-    if (data?.error) {
+    const reasoningRaw = reasoningData?.output?.[0]?.content?.[0]?.text;
+    if (!reasoningRaw) {
       return res.status(500).json({
-        error: data.error.message || "OpenAI API error",
-        raw: data
-      });
-    }
-
-    const rawText = data?.output?.[0]?.content?.[0]?.text;
-
-    if (!rawText) {
-      return res.status(500).json({
-        error: "No text returned from OpenAI",
-        raw: data
+        error: "No reasoning data returned"
       });
     }
 
     let parsed;
     try {
-      parsed = JSON.parse(rawText);
+      parsed = JSON.parse(reasoningRaw);
     } catch (err) {
       return res.status(500).json({
-        error: "OpenAI did not return valid JSON",
-        rawText
+        error: "Reasoning JSON parse failed",
+        rawText: reasoningRaw
       });
     }
 
     let alternatives = (parsed.alternatives || []).map(alt => {
-      const match = filteredCandidates.find(item => item.id === alt.id);
+      const match = candidates.find(item => item.id === alt.id);
       if (!match) return null;
       return {
         id: match.id,
@@ -191,7 +249,7 @@ Rules:
     }).filter(Boolean);
 
     if (!alternatives.length) {
-      alternatives = filteredCandidates.slice(0, 3).map(item => ({
+      alternatives = candidates.slice(3, 6).map(item => ({
         id: item.id,
         product_title: item.product_title,
         price: item.price,

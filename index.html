@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NewJaisa Laptop Value Widget</title>
+  <title>NewJaisa AI Comparison Widget</title>
   <style>
     * { box-sizing: border-box; }
 
@@ -16,7 +16,7 @@
     }
 
     .widget {
-      max-width: 1100px;
+      max-width: 1120px;
       margin: 0 auto;
       background: #fff;
       border-radius: 22px;
@@ -45,8 +45,8 @@
       margin: 0;
       color: #cbd5e1;
       font-size: 13px;
-      max-width: 620px;
       line-height: 1.45;
+      max-width: 620px;
     }
 
     .switcher label {
@@ -61,7 +61,7 @@
       padding: 10px 12px;
       border-radius: 10px;
       border: none;
-      min-width: 260px;
+      min-width: 280px;
       font-size: 13px;
       outline: none;
     }
@@ -85,6 +85,38 @@
       font-weight: 600;
       opacity: 0.95;
       margin-top: 4px;
+    }
+
+    .status-box {
+      margin: 16px 18px 0;
+      border: 1px solid #dbeafe;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+
+    .status-title {
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .status-line {
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 20px;
+    }
+
+    .status-line.typing::after {
+      content: "▋";
+      display: inline-block;
+      margin-left: 4px;
+      animation: blink 1s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
     }
 
     .comparison-wrap {
@@ -271,15 +303,16 @@
       font-weight: 800;
     }
 
-    .loading {
+    .loading-row td {
+      height: 52px;
+      background: #e5e7eb;
+      color: transparent;
       position: relative;
       overflow: hidden;
-      background: #e5e7eb !important;
-      color: transparent !important;
-      border-color: #e5e7eb !important;
     }
 
-    .loading::after {
+    .loading-row td::after,
+    .alt-card.loading::after {
       content: "";
       position: absolute;
       inset: 0;
@@ -287,7 +320,7 @@
       background: linear-gradient(
         90deg,
         rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.6) 50%,
+        rgba(255,255,255,0.65) 50%,
         rgba(255,255,255,0) 100%
       );
       animation: shimmer 1.2s infinite;
@@ -295,10 +328,9 @@
 
     .alt-card.loading {
       min-height: 110px;
-    }
-
-    .loading-row td {
-      height: 54px;
+      position: relative;
+      overflow: hidden;
+      background: #e5e7eb;
     }
 
     @keyframes shimmer {
@@ -319,24 +351,29 @@
     <div class="topbar">
       <div>
         <h1>Refurbished vs New: better value</h1>
-        <p>See why this refurbished laptop beats similarly priced new laptops on specs and value.</p>
+        <p>Switch test payloads across categories and let AI find competitor new laptops for the selected refurb model.</p>
       </div>
 
       <div class="switcher">
-        <label for="modelSelect">Change laptop model</label>
+        <label for="modelSelect">Change dummy laptop payload</label>
         <select id="modelSelect"></select>
       </div>
     </div>
 
     <div class="banner">
       <div id="bannerMain">💰 Checking value advantage...</div>
-      <div id="bannerSub"><small>Comparing against new laptops in a similar price range</small></div>
+      <div id="bannerSub"><small>Finding comparable new laptops in the same category</small></div>
+    </div>
+
+    <div class="status-box">
+      <div class="status-title">AI market search status</div>
+      <div class="status-line typing" id="statusLine">Waiting to start...</div>
     </div>
 
     <div class="comparison-wrap">
       <div class="comparison-title">
         <h2 id="comparisonHeading">Value comparison</h2>
-        <div class="chip" id="comparisonChip">Refurbished value advantage</div>
+        <div class="chip" id="comparisonChip">Finding competitors</div>
       </div>
 
       <div class="table-wrap">
@@ -407,65 +444,7 @@
             gpu: "Intel Iris Xe",
             os: "Windows 11 Pro"
           }
-        },
-        new_laptop_candidates: [
-          {
-            id: "acer-aspire-lite",
-            product_title: "Acer Aspire Lite",
-            condition: "New",
-            category: "business",
-            price: 29999,
-            specs: {
-              processor: "Intel Core i3 12th Gen",
-              ram: "8 GB",
-              storage: "512 GB SSD",
-              display: "15.6 inch FHD",
-              gpu: "Integrated"
-            }
-          },
-          {
-            id: "lenovo-v15",
-            product_title: "Lenovo V15",
-            condition: "New",
-            category: "business",
-            price: 28999,
-            specs: {
-              processor: "Intel Core i3 11th Gen",
-              ram: "8 GB",
-              storage: "512 GB SSD",
-              display: "15.6 inch FHD",
-              gpu: "Integrated"
-            }
-          },
-          {
-            id: "hp-15",
-            product_title: "HP 15",
-            condition: "New",
-            category: "business",
-            price: 30999,
-            specs: {
-              processor: "Intel Core i3 12th Gen",
-              ram: "8 GB",
-              storage: "256 GB SSD",
-              display: "15.6 inch FHD",
-              gpu: "Integrated"
-            }
-          },
-          {
-            id: "asus-vivobook-go",
-            product_title: "ASUS Vivobook Go",
-            condition: "New",
-            category: "business",
-            price: 31999,
-            specs: {
-              processor: "Ryzen 3",
-              ram: "8 GB",
-              storage: "512 GB SSD",
-              display: "15.6 inch FHD",
-              gpu: "Integrated"
-            }
-          }
-        ]
+        }
       },
 
       t480: {
@@ -483,65 +462,7 @@
             gpu: "Intel UHD Graphics",
             os: "Windows 11 Pro"
           }
-        },
-        new_laptop_candidates: [
-          {
-            id: "acer-aspire-3",
-            product_title: "Acer Aspire 3",
-            condition: "New",
-            category: "business",
-            price: 25999,
-            specs: {
-              processor: "Intel Core i3 11th Gen",
-              ram: "8 GB",
-              storage: "256 GB SSD",
-              display: "15.6 inch FHD",
-              gpu: "Integrated"
-            }
-          },
-          {
-            id: "hp-14s",
-            product_title: "HP 14s",
-            condition: "New",
-            category: "business",
-            price: 26999,
-            specs: {
-              processor: "Intel Core i3 11th Gen",
-              ram: "8 GB",
-              storage: "256 GB SSD",
-              display: "14 inch FHD",
-              gpu: "Integrated"
-            }
-          },
-          {
-            id: "ideapad-slim-3",
-            product_title: "Lenovo IdeaPad Slim 3",
-            condition: "New",
-            category: "business",
-            price: 28999,
-            specs: {
-              processor: "Ryzen 3",
-              ram: "8 GB",
-              storage: "512 GB SSD",
-              display: "15.6 inch FHD",
-              gpu: "Integrated"
-            }
-          },
-          {
-            id: "asus-vivobook-14",
-            product_title: "ASUS Vivobook 14",
-            condition: "New",
-            category: "business",
-            price: 29999,
-            specs: {
-              processor: "Intel Core i3 12th Gen",
-              ram: "8 GB",
-              storage: "512 GB SSD",
-              display: "14 inch FHD",
-              gpu: "Integrated"
-            }
-          }
-        ]
+        }
       },
 
       gamingg15: {
@@ -559,65 +480,43 @@
             gpu: "NVIDIA RTX 3050",
             os: "Windows 11"
           }
-        },
-        new_laptop_candidates: [
-          {
-            id: "msi-thin",
-            product_title: "MSI Thin",
-            condition: "New",
-            category: "gaming",
-            price: 57999,
-            specs: {
-              processor: "Intel Core i5 11th Gen",
-              ram: "8 GB",
-              storage: "512 GB SSD",
-              display: "15.6 inch FHD",
-              gpu: "GTX 1650"
-            }
-          },
-          {
-            id: "asus-tuf-entry",
-            product_title: "ASUS TUF Entry Variant",
-            condition: "New",
-            category: "gaming",
-            price: 59999,
-            specs: {
-              processor: "Ryzen 5",
-              ram: "8 GB",
-              storage: "512 GB SSD",
-              display: "15.6 inch FHD",
-              gpu: "RTX 2050"
-            }
-          },
-          {
-            id: "hp-victus-entry",
-            product_title: "HP Victus Entry Variant",
-            condition: "New",
-            category: "gaming",
-            price: 61999,
-            specs: {
-              processor: "Intel Core i5 12th Gen",
-              ram: "8 GB",
-              storage: "512 GB SSD",
-              display: "15.6 inch FHD",
-              gpu: "RTX 2050"
-            }
-          },
-          {
-            id: "lenovo-loq-entry",
-            product_title: "Lenovo LOQ Entry Variant",
-            condition: "New",
-            category: "gaming",
-            price: 63999,
-            specs: {
-              processor: "Intel Core i5 12th Gen",
-              ram: "8 GB",
-              storage: "512 GB SSD",
-              display: "15.6 inch FHD",
-              gpu: "RTX 2050"
-            }
+        }
+      },
+
+      macair: {
+        selected_model: {
+          id: "macair",
+          product_title: "MacBook Air Refurbished",
+          brand_name: "NewJaisa",
+          our_price: 42999,
+          category: "portable",
+          specs: {
+            processor: "Intel Core i5",
+            ram: "8 GB",
+            storage: "256 GB SSD",
+            display: "13.3 inch Retina",
+            gpu: "Integrated",
+            os: "macOS"
           }
-        ]
+        }
+      },
+
+      creatorbook: {
+        selected_model: {
+          id: "creatorbook",
+          product_title: "ASUS Creator Laptop Refurbished",
+          brand_name: "NewJaisa",
+          our_price: 64999,
+          category: "creator",
+          specs: {
+            processor: "Intel Core i7 11th Gen",
+            ram: "16 GB",
+            storage: "1 TB SSD",
+            display: "15.6 inch FHD",
+            gpu: "NVIDIA GTX 1650",
+            os: "Windows 11 Pro"
+          }
+        }
       }
     };
 
@@ -666,78 +565,28 @@
     }
 
     function setLoadingState() {
-      document.getElementById("bannerMain").textContent = "Loading comparison...";
-      document.getElementById("bannerSub").innerHTML = "<small>Fetching value insights and alternatives</small>";
-      document.getElementById("comparisonHeading").textContent = "Loading laptop comparison...";
-      document.getElementById("comparisonChip").textContent = "Loading";
+      document.getElementById("bannerMain").textContent = "💰 Searching similar new laptops...";
+      document.getElementById("bannerSub").innerHTML = "<small>Finding same-category competitors in the same price band</small>";
+      document.getElementById("comparisonHeading").textContent = "Building comparison...";
+      document.getElementById("comparisonChip").textContent = "Searching";
+      document.getElementById("statusLine").textContent = "Searching similar laptops...";
+      document.getElementById("statusLine").classList.add("typing");
 
-      const comparisonBody = document.getElementById("comparisonTableBody");
-      comparisonBody.innerHTML = `
-        <tr class="loading-row">
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-        </tr>
-        <tr class="loading-row">
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-        </tr>
-        <tr class="loading-row">
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-        </tr>
-        <tr class="loading-row">
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-        </tr>
+      document.getElementById("comparisonTableBody").innerHTML = `
+        <tr class="loading-row"><td colspan="9">Loading</td></tr>
+        <tr class="loading-row"><td colspan="9">Loading</td></tr>
+        <tr class="loading-row"><td colspan="9">Loading</td></tr>
+        <tr class="loading-row"><td colspan="9">Loading</td></tr>
       `;
 
       document.getElementById("newjaisaList").innerHTML = `
-        <li class="loading">Loading</li>
-        <li class="loading">Loading</li>
-        <li class="loading">Loading</li>
-        <li class="loading">Loading</li>
+        <li>Loading...</li><li>Loading...</li><li>Loading...</li><li>Loading...</li>
       `;
-
       document.getElementById("userList").innerHTML = `
-        <li class="loading">Loading</li>
-        <li class="loading">Loading</li>
-        <li class="loading">Loading</li>
-        <li class="loading">Loading</li>
+        <li>Loading...</li><li>Loading...</li><li>Loading...</li><li>Loading...</li>
       `;
-
       document.getElementById("advList").innerHTML = `
-        <li class="loading">Loading</li>
-        <li class="loading">Loading</li>
-        <li class="loading">Loading</li>
-        <li class="loading">Loading</li>
+        <li>Loading...</li><li>Loading...</li><li>Loading...</li><li>Loading...</li>
       `;
 
       document.getElementById("altGrid").innerHTML = `
@@ -747,7 +596,7 @@
       `;
 
       document.getElementById("ctaTitle").textContent = "Loading recommendation...";
-      document.getElementById("ctaText").textContent = "Please wait while we compare value.";
+      document.getElementById("ctaText").textContent = "Please wait while AI finds competitors.";
       document.getElementById("ctaBtn").textContent = "Loading...";
     }
 
@@ -756,6 +605,8 @@
       document.getElementById("comparisonChip").textContent = "Error";
       document.getElementById("bannerMain").textContent = "Unable to load value comparison";
       document.getElementById("bannerSub").innerHTML = `<small>${message}</small>`;
+      document.getElementById("statusLine").textContent = message;
+      document.getElementById("statusLine").classList.remove("typing");
       document.getElementById("comparisonTableBody").innerHTML = "";
       document.getElementById("altGrid").innerHTML = `
         <div class="alt-card">
@@ -763,6 +614,24 @@
           <div class="alt-reason">${message}</div>
         </div>
       `;
+    }
+
+    async function animateProgress() {
+      const steps = [
+        "Searching similar laptops...",
+        "Finding competitors in same category...",
+        "Checking nearby price range...",
+        "Comparing RAM, storage and GPU...",
+        "Calculating value score...",
+        "Preparing final comparison..."
+      ];
+
+      const statusEl = document.getElementById("statusLine");
+
+      for (const step of steps) {
+        statusEl.textContent = step;
+        await new Promise(resolve => setTimeout(resolve, 650));
+      }
     }
 
     const select = document.getElementById("modelSelect");
@@ -776,6 +645,7 @@
     async function loadWidget() {
       try {
         setLoadingState();
+        const progressPromise = animateProgress();
 
         const payload = DEMO_PAYLOADS[select.value];
         const model = payload.selected_model;
@@ -787,6 +657,7 @@
         });
 
         const data = await res.json();
+        await progressPromise;
 
         if (!res.ok) {
           setErrorState(data.error || "API error");
@@ -803,6 +674,9 @@
           ai.banner_main || "💰 Better specs at a smarter price";
         document.getElementById("bannerSub").innerHTML =
           `<small>${ai.banner_sub || "Refurbished laptops often beat similarly priced new entry-level models."}</small>`;
+
+        document.getElementById("statusLine").textContent = "Competitors found and comparison generated.";
+        document.getElementById("statusLine").classList.remove("typing");
 
         fillList("newjaisaList", ai.why_buy_from_newjaisa);
         fillList("userList", ai.best_for_users);
