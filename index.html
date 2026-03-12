@@ -3,232 +3,180 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NewJaisa Laptop Widget</title>
+  <title>NewJaisa Laptop Value Widget</title>
   <style>
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      padding: 24px;
+      padding: 20px;
       font-family: Inter, Arial, sans-serif;
       background: #f4f7fb;
       color: #111827;
     }
 
     .widget {
-      max-width: 980px;
+      max-width: 1100px;
       margin: 0 auto;
-      background: #ffffff;
-      border-radius: 24px;
-      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+      background: #fff;
+      border-radius: 22px;
       overflow: hidden;
       border: 1px solid #e5e7eb;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
     }
 
     .topbar {
       background: linear-gradient(135deg, #0f172a, #1e293b);
       color: #fff;
-      padding: 18px 20px;
+      padding: 16px 18px;
       display: flex;
       justify-content: space-between;
       align-items: end;
-      gap: 14px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .topbar h1 {
-      margin: 0 0 6px;
-      font-size: 26px;
-      line-height: 1.15;
+      margin: 0 0 4px;
+      font-size: 24px;
     }
 
     .topbar p {
       margin: 0;
       color: #cbd5e1;
       font-size: 13px;
-      line-height: 1.5;
-      max-width: 560px;
-    }
-
-    .switcher {
-      min-width: 260px;
     }
 
     .switcher label {
       display: block;
-      font-size: 12px;
-      font-weight: 700;
-      color: #dbeafe;
+      font-size: 11px;
       margin-bottom: 6px;
+      color: #dbeafe;
+      font-weight: 700;
     }
 
     .switcher select {
-      width: 100%;
-      padding: 11px 12px;
-      border-radius: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
       border: none;
-      font-size: 14px;
-      outline: none;
+      min-width: 250px;
     }
 
-    .hero {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 16px;
-      padding: 18px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .panel {
-      background: #f8fafc;
-      border-radius: 18px;
-      padding: 18px;
-      border: 1px solid #e5e7eb;
-    }
-
-    .title {
-      margin: 0 0 8px;
-      font-size: 26px;
-      line-height: 1.2;
-      color: #0f172a;
-    }
-
-    .specline {
-      margin: 0;
-      color: #64748b;
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    .badge-wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .badge {
-      background: #e0ecff;
-      color: #1d4ed8;
-      padding: 8px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .headline {
-      margin: 0 0 10px;
-      font-size: 21px;
-      line-height: 1.3;
-      color: #111827;
-    }
-
-    .value-tier {
-      background: linear-gradient(135deg, #dcfce7, #ecfdf5);
-      color: #166534;
-      border-radius: 14px;
-      padding: 12px 14px;
-      font-weight: 800;
-      margin-bottom: 10px;
-      border: 1px solid #bbf7d0;
-    }
-
-    .summary-text {
-      color: #374151;
-      font-size: 14px;
-      line-height: 1.6;
-      margin: 8px 0;
-    }
-
-    .savings-banner {
-      margin: 0 18px 18px;
+    .banner {
+      margin: 16px 18px 0;
       background: linear-gradient(135deg, #16a34a, #22c55e);
       color: #fff;
-      border-radius: 16px;
+      border-radius: 14px;
       padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
       font-weight: 800;
-      font-size: 16px;
+    }
+
+    .banner small {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.95;
+      margin-top: 4px;
+    }
+
+    .comparison-wrap {
+      padding: 18px;
+    }
+
+    .comparison-title {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
+      margin-bottom: 10px;
     }
 
-    .savings-sub {
-      font-size: 13px;
-      font-weight: 600;
-      opacity: 0.95;
-    }
-
-    .price-box {
-      padding: 18px;
-      border-bottom: 1px solid #e5e7eb;
-      background: #ffffff;
-    }
-
-    .price-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-
-    .price-top h3 {
+    .comparison-title h2 {
       margin: 0;
-      font-size: 18px;
-      color: #0f172a;
+      font-size: 19px;
     }
 
-    .deal-chip {
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
       background: #fff7ed;
       color: #c2410c;
       border: 1px solid #fdba74;
-      padding: 8px 12px;
-      border-radius: 999px;
       font-size: 12px;
       font-weight: 800;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
+      background: #fff;
     }
 
     th, td {
-      text-align: left;
       padding: 12px 10px;
       border-bottom: 1px solid #e5e7eb;
-      font-size: 14px;
+      text-align: left;
       vertical-align: top;
+      font-size: 13px;
     }
 
     th {
-      color: #6b7280;
+      background: #f8fafc;
+      color: #475569;
       font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.02em;
     }
 
-    .section-grid {
+    .refurb-row {
+      background: #f0fdf4;
+    }
+
+    .score {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 12px;
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .score-low {
+      background: #fff7ed;
+      color: #c2410c;
+      border: 1px solid #fdba74;
+    }
+
+    .grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 16px;
-      padding: 18px;
+      padding: 0 18px 18px;
     }
 
-    .section {
+    .card {
       border: 1px solid #e5e7eb;
       border-radius: 18px;
       padding: 16px;
       background: #fff;
     }
 
-    .section h3 {
-      margin: 0 0 12px;
-      font-size: 17px;
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
       color: #0f172a;
     }
 
@@ -238,38 +186,19 @@
     }
 
     li {
-      margin-bottom: 9px;
-      font-size: 14px;
+      margin-bottom: 8px;
+      font-size: 13px;
       color: #374151;
       line-height: 1.5;
     }
 
-    .pill-wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+    .alt-section {
+      padding: 0 18px 18px;
     }
 
-    .pill {
-      background: #f3f4f6;
-      color: #111827;
-      border-radius: 999px;
-      padding: 9px 12px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .alternatives {
-      padding: 18px;
-      border-top: 1px solid #e5e7eb;
-      border-bottom: 1px solid #e5e7eb;
-      background: #fcfcfd;
-    }
-
-    .alternatives h3 {
-      margin: 0 0 14px;
-      font-size: 18px;
-      color: #0f172a;
+    .alt-section h3 {
+      margin: 0 0 12px;
+      font-size: 17px;
     }
 
     .alt-grid {
@@ -280,83 +209,64 @@
 
     .alt-card {
       border: 1px solid #e5e7eb;
-      border-radius: 18px;
+      border-radius: 16px;
       padding: 14px;
       background: #fff;
     }
 
     .alt-card h4 {
       margin: 0 0 8px;
-      font-size: 16px;
-      color: #111827;
-      line-height: 1.3;
+      font-size: 15px;
+      line-height: 1.35;
     }
 
     .alt-price {
       color: #16a34a;
       font-weight: 800;
-      margin-bottom: 8px;
-      font-size: 15px;
-    }
-
-    .alt-meta {
-      color: #64748b;
-      font-size: 13px;
-      line-height: 1.5;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
+      font-size: 14px;
     }
 
     .alt-reason {
-      color: #374151;
+      color: #475569;
       font-size: 13px;
       line-height: 1.5;
     }
 
     .footer {
-      padding: 18px;
+      padding: 16px 18px;
       background: #0f172a;
       color: #fff;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .footer h3 {
-      margin: 0 0 6px;
-      font-size: 21px;
+      margin: 0 0 4px;
+      font-size: 19px;
     }
 
     .footer p {
       margin: 0;
       color: #cbd5e1;
-      font-size: 14px;
-      line-height: 1.5;
+      font-size: 13px;
     }
 
     .footer a {
-      background: #ffffff;
+      background: #fff;
       color: #111827;
       text-decoration: none;
-      padding: 12px 16px;
-      border-radius: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
       font-weight: 800;
     }
 
-    .status {
-      margin-top: 8px;
-      font-size: 13px;
-      color: #6b7280;
-    }
-
-    @media (max-width: 900px) {
-      .hero, .section-grid, .alt-grid {
+    @media (max-width: 950px) {
+      .grid, .alt-grid {
         grid-template-columns: 1fr;
-      }
-
-      .title {
-        font-size: 22px;
       }
     }
   </style>
@@ -365,8 +275,8 @@
   <div class="widget">
     <div class="topbar">
       <div>
-        <h1>Why this laptop is worth buying</h1>
-        <p>Compare price first, then see who it suits best, why NewJaisa is a smarter buy, and which alternatives also fit your budget.</p>
+        <h1>Refurbished vs New: better value</h1>
+        <p>See why this refurbished laptop beats similarly priced new laptops on specs and value.</p>
       </div>
       <div class="switcher">
         <label for="modelSelect">Change laptop model</label>
@@ -374,79 +284,56 @@
       </div>
     </div>
 
-    <div class="hero">
-      <div class="panel">
-        <h2 class="title" id="title">Loading...</h2>
-        <p class="specline" id="specLine">Loading specs...</p>
-        <div class="badge-wrap" id="badges"></div>
+    <div class="banner">
+      <div id="bannerMain">💰 Checking value advantage...</div>
+      <div id="bannerSub"><small>Comparing against new laptops in a similar price range</small></div>
+    </div>
+
+    <div class="comparison-wrap">
+      <div class="comparison-title">
+        <h2 id="comparisonHeading">Value comparison</h2>
+        <div class="chip" id="comparisonChip">Refurbished value advantage</div>
       </div>
 
-      <div class="panel">
-        <h3 class="headline" id="headline">Loading AI reasoning...</h3>
-        <div class="value-tier" id="valueTier">Loading value positioning...</div>
-        <p class="summary-text" id="priceSummary"></p>
-        <p class="summary-text" id="buyerValue"></p>
-        <p class="status" id="statusText">Generating...</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Condition</th>
+              <th>Processor</th>
+              <th>RAM</th>
+              <th>Storage</th>
+              <th>Display / GPU</th>
+              <th>Price</th>
+              <th>Value Score</th>
+              <th>Verdict</th>
+            </tr>
+          </thead>
+          <tbody id="comparisonTableBody"></tbody>
+        </table>
       </div>
     </div>
 
-    <div class="savings-banner">
-      <div id="savingsBannerText">💰 Checking savings opportunity...</div>
-      <div class="savings-sub" id="savingsBannerSub">Comparing NewJaisa against marketplace references</div>
-    </div>
-
-    <div class="price-box">
-      <div class="price-top">
-        <h3>💸 Price comparison</h3>
-        <div class="deal-chip" id="dealChip">🔥 Better value positioning</div>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Source</th>
-            <th>Price</th>
-            <th>Position</th>
-            <th>Why it matters</th>
-          </tr>
-        </thead>
-        <tbody id="priceBody"></tbody>
-      </table>
-    </div>
-
-    <div class="section-grid">
-      <div class="section">
-        <h3>✅ Why buy from NewJaisa</h3>
+    <div class="grid">
+      <div class="card">
+        <h3>Why buy from NewJaisa</h3>
         <ul id="newjaisaList"></ul>
       </div>
 
-      <div class="section">
-        <h3>👤 Best for which user</h3>
+      <div class="card">
+        <h3>Best for users</h3>
         <ul id="userList"></ul>
       </div>
 
-      <div class="section">
-        <h3>💼 Profession fit</h3>
-        <ul id="professionList"></ul>
-      </div>
-
-      <div class="section">
-        <h3>⚡ Key advantages</h3>
+      <div class="card">
+        <h3>Key advantages</h3>
         <ul id="advList"></ul>
-      </div>
-
-      <div class="section">
-        <h3>🧠 Performance summary</h3>
-        <ul id="perfList"></ul>
-      </div>
-
-      <div class="section">
-        <h3>🏷️ Laptop type</h3>
-        <div class="pill-wrap" id="typeList"></div>
       </div>
     </div>
 
-    <div class="alternatives">
-      <h3>🔄 Alternative options you can consider</h3>
+    <div class="alt-section">
+      <h3>Alternative options</h3>
       <div class="alt-grid" id="altGrid"></div>
     </div>
 
@@ -455,7 +342,7 @@
         <h3 id="ctaTitle">Loading CTA...</h3>
         <p id="ctaText">Please wait...</p>
       </div>
-      <a href="#" id="ctaBtn">Explore</a>
+      <a href="#" id="ctaBtn">Buy Now</a>
     </div>
   </div>
 
@@ -466,90 +353,176 @@
         product_title: "Dell Latitude 7420 Refurbished",
         brand_name: "NewJaisa",
         our_price: 27999,
-        compare_price_amazon: 32999,
-        compare_price_flipkart: 31499,
         specs: {
           processor: "Intel Core i5 11th Gen",
           ram: "16 GB",
           storage: "512 GB SSD",
           display: "14 inch FHD",
           gpu: "Intel Iris Xe",
-          weight: "1.3 kg",
           os: "Windows 11 Pro"
-        }
+        },
+        comparable_new: [
+          {
+            model: "Acer Aspire Lite",
+            condition: "New",
+            processor: "Intel Core i3 12th Gen",
+            ram: "8 GB",
+            storage: "512 GB SSD",
+            display_gpu: "15.6 inch FHD / Integrated",
+            price: 29999
+          },
+          {
+            model: "Lenovo V15",
+            condition: "New",
+            processor: "Intel Core i3 11th Gen",
+            ram: "8 GB",
+            storage: "512 GB SSD",
+            display_gpu: "15.6 inch FHD / Integrated",
+            price: 28999
+          },
+          {
+            model: "HP 15",
+            condition: "New",
+            processor: "Intel Core i3 12th Gen",
+            ram: "8 GB",
+            storage: "256 GB SSD",
+            display_gpu: "15.6 inch FHD / Integrated",
+            price: 30999
+          }
+        ]
       },
       hp840g5: {
         id: "hp840g5",
         product_title: "HP EliteBook 840 G5 Refurbished",
         brand_name: "NewJaisa",
         our_price: 24999,
-        compare_price_amazon: 28999,
-        compare_price_flipkart: 27999,
         specs: {
           processor: "Intel Core i5 8th Gen",
           ram: "8 GB",
           storage: "256 GB SSD",
           display: "14 inch FHD",
           gpu: "Intel UHD Graphics",
-          weight: "1.5 kg",
           os: "Windows 11 Pro"
-        }
+        },
+        comparable_new: [
+          {
+            model: "Lenovo V14",
+            condition: "New",
+            processor: "Intel Core i3 11th Gen",
+            ram: "8 GB",
+            storage: "256 GB SSD",
+            display_gpu: "14 inch FHD / Integrated",
+            price: 26999
+          },
+          {
+            model: "Acer One 14",
+            condition: "New",
+            processor: "Intel Core i3",
+            ram: "8 GB",
+            storage: "512 GB SSD",
+            display_gpu: "14 inch FHD / Integrated",
+            price: 25999
+          },
+          {
+            model: "ASUS Vivobook Go",
+            condition: "New",
+            processor: "Ryzen 3",
+            ram: "8 GB",
+            storage: "512 GB SSD",
+            display_gpu: "15.6 inch FHD / Integrated",
+            price: 27999
+          }
+        ]
       },
       t480: {
         id: "t480",
         product_title: "Lenovo ThinkPad T480 Refurbished",
         brand_name: "NewJaisa",
         our_price: 23999,
-        compare_price_amazon: 27999,
-        compare_price_flipkart: 26999,
         specs: {
           processor: "Intel Core i5 8th Gen",
           ram: "8 GB",
           storage: "512 GB SSD",
           display: "14 inch FHD",
           gpu: "Intel UHD Graphics",
-          weight: "1.6 kg",
           os: "Windows 11 Pro"
-        }
+        },
+        comparable_new: [
+          {
+            model: "Acer Aspire 3",
+            condition: "New",
+            processor: "Intel Core i3 11th Gen",
+            ram: "8 GB",
+            storage: "256 GB SSD",
+            display_gpu: "15.6 inch FHD / Integrated",
+            price: 25999
+          },
+          {
+            model: "HP 14s",
+            condition: "New",
+            processor: "Intel Core i3 11th Gen",
+            ram: "8 GB",
+            storage: "256 GB SSD",
+            display_gpu: "14 inch FHD / Integrated",
+            price: 26999
+          },
+          {
+            model: "Lenovo IdeaPad Slim 3",
+            condition: "New",
+            processor: "Ryzen 3",
+            ram: "8 GB",
+            storage: "512 GB SSD",
+            display_gpu: "15.6 inch FHD / Integrated",
+            price: 28999
+          }
+        ]
       },
       gamingg15: {
         id: "gamingg15",
         product_title: "Dell G15 Gaming Laptop Refurbished",
         brand_name: "NewJaisa",
         our_price: 52999,
-        compare_price_amazon: 58999,
-        compare_price_flipkart: 57499,
         specs: {
           processor: "Intel Core i5 12th Gen",
           ram: "16 GB",
           storage: "512 GB SSD",
           display: "15.6 inch FHD 120Hz",
           gpu: "NVIDIA RTX 3050",
-          weight: "2.5 kg",
           os: "Windows 11"
-        }
-      },
-      macair: {
-        id: "macair",
-        product_title: "MacBook Air Refurbished",
-        brand_name: "NewJaisa",
-        our_price: 42999,
-        compare_price_amazon: 48999,
-        compare_price_flipkart: 46999,
-        specs: {
-          processor: "Intel Core i5",
-          ram: "8 GB",
-          storage: "256 GB SSD",
-          display: "13.3 inch Retina",
-          gpu: "Integrated Graphics",
-          weight: "1.29 kg",
-          os: "macOS"
-        }
+        },
+        comparable_new: [
+          {
+            model: "MSI Thin",
+            condition: "New",
+            processor: "Intel Core i5 11th Gen",
+            ram: "8 GB",
+            storage: "512 GB SSD",
+            display_gpu: "15.6 inch FHD / GTX 1650",
+            price: 57999
+          },
+          {
+            model: "ASUS TUF Entry Variant",
+            condition: "New",
+            processor: "Ryzen 5",
+            ram: "8 GB",
+            storage: "512 GB SSD",
+            display_gpu: "15.6 inch FHD / RTX 2050",
+            price: 59999
+          },
+          {
+            model: "HP Victus Entry Variant",
+            condition: "New",
+            processor: "Intel Core i5 12th Gen",
+            ram: "8 GB",
+            storage: "512 GB SSD",
+            display_gpu: "15.6 inch FHD / RTX 2050",
+            price: 61999
+          }
+        ]
       }
     };
 
     const select = document.getElementById("modelSelect");
-
     Object.entries(models).forEach(([key, value]) => {
       const option = document.createElement("option");
       option.value = key;
@@ -567,20 +540,12 @@
       });
     }
 
-    function fillPills(id, items = []) {
-      const el = document.getElementById(id);
-      el.innerHTML = "";
-      items.forEach(item => {
-        const span = document.createElement("span");
-        span.className = "pill";
-        span.textContent = item;
-        el.appendChild(span);
-      });
+    function formatPrice(v) {
+      return "₹" + Number(v).toLocaleString("en-IN");
     }
 
-    function formatPrice(v) {
-      if (v === null || v === undefined || Number.isNaN(Number(v))) return "—";
-      return "₹" + Number(v).toLocaleString("en-IN");
+    function scoreBadge(score, good = true) {
+      return `<span class="score ${good ? "" : "score-low"}">${score}/10</span>`;
     }
 
     function renderAlternatives(items = []) {
@@ -588,7 +553,12 @@
       altGrid.innerHTML = "";
 
       if (!items.length) {
-        altGrid.innerHTML = `<div class="alt-card"><h4>No alternatives available</h4><div class="alt-reason">Try another model to see nearby options.</div></div>`;
+        altGrid.innerHTML = `
+          <div class="alt-card">
+            <h4>No alternatives available</h4>
+            <div class="alt-reason">Try another model to see nearby options.</div>
+          </div>
+        `;
         return;
       }
 
@@ -598,7 +568,6 @@
         card.innerHTML = `
           <h4>${item.product_title}</h4>
           <div class="alt-price">${item.price_text || formatPrice(item.our_price)}</div>
-          <div class="alt-meta">${(item.tags || []).join(" • ")}</div>
           <div class="alt-reason">${item.reason || ""}</div>
         `;
         altGrid.appendChild(card);
@@ -608,27 +577,6 @@
     async function loadWidget() {
       try {
         const model = models[select.value || "dell7420"];
-
-        document.getElementById("title").textContent = model.product_title;
-        document.getElementById("specLine").textContent =
-          Object.values(model.specs).join(" • ");
-
-        const badges = document.getElementById("badges");
-        badges.innerHTML = "";
-        [
-          "💰 Better value",
-          "✔ 72-point QC",
-          "🛡 1 year warranty",
-          "🔄 Buyback support",
-          model.specs.os
-        ].forEach(item => {
-          const span = document.createElement("span");
-          span.className = "badge";
-          span.textContent = item;
-          badges.appendChild(span);
-        });
-
-        document.getElementById("statusText").textContent = "Generating...";
 
         const payload = {
           selected_model: model,
@@ -644,88 +592,69 @@
         const data = await res.json();
 
         if (!res.ok) {
-          document.getElementById("headline").textContent = "Could not load AI reasoning";
-          document.getElementById("valueTier").textContent = "API error";
-          document.getElementById("priceSummary").textContent = data.error || "Unknown API error";
-          document.getElementById("buyerValue").textContent = "";
-          document.getElementById("statusText").textContent = data.error || "Failed";
-          renderAlternatives([]);
+          document.getElementById("comparisonHeading").textContent = "Could not load comparison";
+          document.getElementById("comparisonChip").textContent = "API error";
           return;
         }
 
         const ai = data.ai;
-        const selected = data.selected_model || model;
 
-        document.getElementById("headline").textContent = ai.headline;
-        document.getElementById("valueTier").textContent = ai.price_positioning.tier;
-        document.getElementById("priceSummary").textContent = ai.price_positioning.summary;
-        document.getElementById("buyerValue").textContent = ai.price_positioning.buyer_value;
-        document.getElementById("statusText").textContent = "Updated";
-        document.getElementById("dealChip").textContent =
-          ai.price_comparison.comparison_note || "🔥 Better price-value fit";
+        document.getElementById("comparisonHeading").textContent = model.product_title;
+        document.getElementById("comparisonChip").textContent =
+          ai.price_comparison.comparison_note || "Refurbished value advantage";
+
+        document.getElementById("bannerMain").textContent =
+          ai.banner_main || "💰 Better specs at a smarter price";
+        document.getElementById("bannerSub").innerHTML =
+          `<small>${ai.banner_sub || "Refurbished business laptops often beat similarly priced new entry-level models."}</small>`;
 
         fillList("newjaisaList", ai.why_buy_from_newjaisa);
         fillList("userList", ai.best_for_users);
-        fillList("professionList", ai.profession_fit);
         fillList("advList", ai.advantages);
-        fillList("perfList", ai.performance_summary);
-        fillPills("typeList", ai.laptop_types);
 
         document.getElementById("ctaTitle").textContent = ai.cta_title;
         document.getElementById("ctaText").textContent = ai.cta_text;
         document.getElementById("ctaBtn").textContent = ai.cta_button;
 
-        const amazon = Number(selected.compare_price_amazon);
-        const flipkart = Number(selected.compare_price_flipkart);
-        const marketPrices = [amazon, flipkart].filter(v => !Number.isNaN(v) && v > 0);
-        const avgMarket = marketPrices.length
-          ? Math.round(marketPrices.reduce((a, b) => a + b, 0) / marketPrices.length)
-          : null;
+        const tbody = document.getElementById("comparisonTableBody");
+        tbody.innerHTML = "";
 
-        if (avgMarket && Number(selected.our_price) < avgMarket) {
-          const savings = avgMarket - Number(selected.our_price);
-          document.getElementById("savingsBannerText").textContent =
-            `💰 Save ₹${savings.toLocaleString("en-IN")} vs typical marketplace price`;
-          document.getElementById("savingsBannerSub").textContent =
-            `NewJaisa: ${formatPrice(selected.our_price)} • Market avg: ${formatPrice(avgMarket)}`;
-        } else {
-          document.getElementById("savingsBannerText").textContent =
-            "💰 Strong refurbished value positioning";
-          document.getElementById("savingsBannerSub").textContent =
-            "This model is positioned as a practical value buy";
-        }
-
-        const pb = document.getElementById("priceBody");
-        pb.innerHTML = `
-          <tr>
-            <td>🟢 <strong>NewJaisa</strong></td>
-            <td>${ai.price_comparison.our_price_text || formatPrice(selected.our_price)}</td>
-            <td>Store price</td>
-            <td>Primary buying price</td>
-          </tr>
-          <tr>
-            <td>🟡 <strong>Amazon</strong></td>
-            <td>${ai.price_comparison.amazon_price_text || "Unavailable"}</td>
-            <td>Reference</td>
-            <td>Marketplace benchmark</td>
-          </tr>
-          <tr>
-            <td>🟡 <strong>Flipkart</strong></td>
-            <td>${ai.price_comparison.flipkart_price_text || "Unavailable"}</td>
-            <td>Reference</td>
-            <td>Marketplace benchmark</td>
-          </tr>
+        const refurbRow = document.createElement("tr");
+        refurbRow.className = "refurb-row";
+        refurbRow.innerHTML = `
+          <td><strong>${model.product_title}</strong></td>
+          <td>Refurbished</td>
+          <td>${model.specs.processor}</td>
+          <td>${model.specs.ram}</td>
+          <td>${model.specs.storage}</td>
+          <td>${model.specs.display} / ${model.specs.gpu}</td>
+          <td><strong>${formatPrice(model.our_price)}</strong></td>
+          <td>${scoreBadge(ai.refurb_value_score || 9, true)}</td>
+          <td>${ai.refurb_verdict || "Better overall value"}</td>
         `;
+        tbody.appendChild(refurbRow);
+
+        (model.comparable_new || []).forEach((item, idx) => {
+          const newRow = document.createElement("tr");
+          newRow.innerHTML = `
+            <td><strong>${item.model}</strong></td>
+            <td>${item.condition}</td>
+            <td>${item.processor}</td>
+            <td>${item.ram}</td>
+            <td>${item.storage}</td>
+            <td>${item.display_gpu}</td>
+            <td>${formatPrice(item.price)}</td>
+            <td>${scoreBadge((ai.new_value_scores && ai.new_value_scores[idx]) || 6, false)}</td>
+            <td>${(ai.new_verdicts && ai.new_verdicts[idx]) || "Higher price for lower specs"}</td>
+          `;
+          tbody.appendChild(newRow);
+        });
 
         renderAlternatives(data.alternatives || []);
       } catch (err) {
-        document.getElementById("headline").textContent = "Frontend error";
-        document.getElementById("valueTier").textContent = "Request failed";
-        document.getElementById("priceSummary").textContent = err.message;
-        document.getElementById("buyerValue").textContent = "";
-        document.getElementById("statusText").textContent = err.message;
-        renderAlternatives([]);
         console.error(err);
+        document.getElementById("comparisonHeading").textContent = "Frontend error";
+        document.getElementById("comparisonChip").textContent = "Request failed";
       }
     }
 

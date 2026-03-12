@@ -28,7 +28,7 @@ export default async function handler(req, res) {
 
     const input = {
       selected_model,
-      catalog_summary: alternativesPool.map(item => ({
+      alternatives_pool: alternativesPool.map(item => ({
         id: item.id,
         product_title: item.product_title,
         our_price: item.our_price,
@@ -44,53 +44,39 @@ export default async function handler(req, res) {
     };
 
     const prompt = `
-You are generating compact customer-facing content for a NewJaisa laptop widget.
+You are generating customer-facing content for a NewJaisa refurbished laptop comparison widget.
 
-Priority order:
-1. Price comparison
-2. Why buy from NewJaisa
-3. Best user fit
-4. Profession fit
-5. Key advantages
-6. Laptop type
-7. Alternative options
+The widget compares:
+- 1 refurbished laptop from NewJaisa
+- 3 similarly priced new laptops with similar or lower specs
 
-Use only the input provided.
-
-Alternative options rules:
-- Suggest up to 3 alternatives from the provided catalog_summary
-- Choose based on price band, user type, laptop category, and practical suitability
-- Do not repeat the selected model
-- Keep the reasons compact and useful
+Your goal:
+- clearly show why the refurbished laptop is a better value buy
+- keep the message simple and customer-focused
+- emphasize price-to-spec advantage
+- avoid unnecessary sections or jargon
 
 Input:
 ${JSON.stringify(input, null, 2)}
 
 Return valid JSON only in exactly this structure:
 {
-  "headline": "string",
-  "price_positioning": {
-    "tier": "string",
-    "summary": "string",
-    "buyer_value": "string"
-  },
+  "banner_main": "string",
+  "banner_sub": "string",
   "price_comparison": {
-    "our_price_text": "string",
-    "amazon_price_text": "string",
-    "flipkart_price_text": "string",
     "comparison_note": "string"
   },
   "why_buy_from_newjaisa": ["string", "string", "string", "string"],
   "best_for_users": ["string", "string", "string", "string"],
-  "profession_fit": ["string", "string", "string", "string"],
-  "laptop_types": ["string", "string", "string", "string"],
   "advantages": ["string", "string", "string", "string"],
-  "performance_summary": ["string", "string", "string", "string"],
+  "refurb_value_score": 9,
+  "refurb_verdict": "string",
+  "new_value_scores": [6, 6, 5],
+  "new_verdicts": ["string", "string", "string"],
   "alternatives": [
     {
       "id": "string",
-      "reason": "string",
-      "tags": ["string", "string"]
+      "reason": "string"
     }
   ],
   "cta_title": "string",
@@ -99,12 +85,12 @@ Return valid JSON only in exactly this structure:
 }
 
 Rules:
-- headline under 9 words
-- each bullet under 8 words
-- alternative reason under 16 words
-- use customer language
-- do not invent policies beyond input
-- do not invent external live price data
+- keep all lines compact
+- emphasize that refurb can give better specs at the same budget
+- do not invent policies beyond the given input
+- do not invent live marketplace prices
+- keep value scores realistic
+- new laptop verdicts should highlight tradeoffs
 `;
 
     if (!process.env.OPENAI_API_KEY) {
@@ -163,7 +149,7 @@ Rules:
       });
     }
 
-    const alternatives = (parsed.alternatives || []).map(alt => {
+    let alternatives = (parsed.alternatives || []).map(alt => {
       const match = catalog.find(item => item.id === alt.id);
       if (!match) return null;
       return {
@@ -171,10 +157,19 @@ Rules:
         product_title: match.product_title,
         our_price: match.our_price,
         price_text: match.our_price ? `₹${Number(match.our_price).toLocaleString("en-IN")}` : "",
-        tags: Array.isArray(alt.tags) ? alt.tags : [],
         reason: alt.reason || ""
       };
     }).filter(Boolean);
+
+    if (!alternatives.length) {
+      alternatives = alternativesPool.slice(0, 3).map(item => ({
+        id: item.id,
+        product_title: item.product_title,
+        our_price: item.our_price,
+        price_text: item.our_price ? `₹${Number(item.our_price).toLocaleString("en-IN")}` : "",
+        reason: "A relevant alternative in a nearby budget or usage range."
+      }));
+    }
 
     return res.status(200).json({
       selected_model,
