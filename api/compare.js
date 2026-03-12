@@ -25,11 +25,13 @@ export default async function handler(req, res) {
       });
     }
 
-    const selectedCategory = (selected_model.category || "").toLowerCase();
+    const selectedCategory = String(selected_model.category || "").toLowerCase();
+    const ourPrice = Number(selected_model.our_price || 0);
 
-    // Keep only new laptops in the same broad category
+    // Filter candidates by category
     let filteredCandidates = new_laptop_candidates.filter(item => {
       if (!item || !item.product_title || !item.specs || !item.price) return false;
+
       const itemCategory = String(item.category || "").toLowerCase();
 
       if (selectedCategory === "gaming") {
@@ -39,8 +41,7 @@ export default async function handler(req, res) {
       return itemCategory !== "gaming";
     });
 
-    // Keep candidates in a nearby price band
-    const ourPrice = Number(selected_model.our_price || 0);
+    // Filter by nearby price band
     if (ourPrice > 0) {
       filteredCandidates = filteredCandidates.filter(item => {
         const p = Number(item.price || 0);
@@ -48,12 +49,12 @@ export default async function handler(req, res) {
       });
     }
 
-    // Fallback to first few if filtering becomes too strict
+    // Fallback if too strict
     if (!filteredCandidates.length) {
       filteredCandidates = new_laptop_candidates.slice(0, 6);
     }
 
-    // Main comparison set = best 3 candidates only
+    // Main table gets top 3 candidates
     const comparisonCandidates = filteredCandidates.slice(0, 3);
 
     const input = {

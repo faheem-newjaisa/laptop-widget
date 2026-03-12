@@ -45,6 +45,25 @@
       margin: 0;
       color: #cbd5e1;
       font-size: 13px;
+      max-width: 620px;
+      line-height: 1.45;
+    }
+
+    .switcher label {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 6px;
+      color: #dbeafe;
+      font-weight: 700;
+    }
+
+    .switcher select {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: none;
+      min-width: 260px;
+      font-size: 13px;
+      outline: none;
     }
 
     .banner {
@@ -84,6 +103,7 @@
     .comparison-title h2 {
       margin: 0;
       font-size: 19px;
+      line-height: 1.3;
     }
 
     .chip {
@@ -122,6 +142,7 @@
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.02em;
+      white-space: nowrap;
     }
 
     .refurb-row {
@@ -238,6 +259,7 @@
       margin: 0;
       color: #cbd5e1;
       font-size: 13px;
+      line-height: 1.45;
     }
 
     .footer a {
@@ -262,6 +284,11 @@
       <div>
         <h1>Refurbished vs New: better value</h1>
         <p>See why this refurbished laptop beats similarly priced new laptops on specs and value.</p>
+      </div>
+
+      <div class="switcher">
+        <label for="modelSelect">Change laptop model</label>
+        <select id="modelSelect"></select>
       </div>
     </div>
 
@@ -328,87 +355,236 @@
   </div>
 
   <script>
-    /*
-      FOR LOCAL / VERCEL TESTING:
-      Keep this payload block.
-
-      FOR SHOPIFY:
-      Replace this whole block with Liquid-inserted payload.
-    */
-    window.NJ_WIDGET_PAYLOAD = {
-      selected_model: {
-        id: "dell7420",
-        product_title: "Dell Latitude 7420 Refurbished",
-        brand_name: "NewJaisa",
-        our_price: 27999,
-        category: "business",
-        specs: {
-          processor: "Intel Core i5 11th Gen",
-          ram: "16 GB",
-          storage: "512 GB SSD",
-          display: "14 inch FHD",
-          gpu: "Intel Iris Xe",
-          os: "Windows 11 Pro"
-        }
+    // Demo payloads for local/Vercel testing.
+    // For Shopify later, replace this entire DEMO_PAYLOADS block with window.NJ_WIDGET_PAYLOAD.
+    const DEMO_PAYLOADS = {
+      dell7420: {
+        selected_model: {
+          id: "dell7420",
+          product_title: "Dell Latitude 7420 Refurbished",
+          brand_name: "NewJaisa",
+          our_price: 27999,
+          category: "business",
+          specs: {
+            processor: "Intel Core i5 11th Gen",
+            ram: "16 GB",
+            storage: "512 GB SSD",
+            display: "14 inch FHD",
+            gpu: "Intel Iris Xe",
+            os: "Windows 11 Pro"
+          }
+        },
+        new_laptop_candidates: [
+          {
+            id: "acer-aspire-lite",
+            product_title: "Acer Aspire Lite",
+            condition: "New",
+            category: "business",
+            price: 29999,
+            specs: {
+              processor: "Intel Core i3 12th Gen",
+              ram: "8 GB",
+              storage: "512 GB SSD",
+              display: "15.6 inch FHD",
+              gpu: "Integrated"
+            }
+          },
+          {
+            id: "lenovo-v15",
+            product_title: "Lenovo V15",
+            condition: "New",
+            category: "business",
+            price: 28999,
+            specs: {
+              processor: "Intel Core i3 11th Gen",
+              ram: "8 GB",
+              storage: "512 GB SSD",
+              display: "15.6 inch FHD",
+              gpu: "Integrated"
+            }
+          },
+          {
+            id: "hp-15",
+            product_title: "HP 15",
+            condition: "New",
+            category: "business",
+            price: 30999,
+            specs: {
+              processor: "Intel Core i3 12th Gen",
+              ram: "8 GB",
+              storage: "256 GB SSD",
+              display: "15.6 inch FHD",
+              gpu: "Integrated"
+            }
+          },
+          {
+            id: "asus-vivobook-go",
+            product_title: "ASUS Vivobook Go",
+            condition: "New",
+            category: "business",
+            price: 31999,
+            specs: {
+              processor: "Ryzen 3",
+              ram: "8 GB",
+              storage: "512 GB SSD",
+              display: "15.6 inch FHD",
+              gpu: "Integrated"
+            }
+          }
+        ]
       },
-      new_laptop_candidates: [
-        {
-          id: "acer-aspire-lite",
-          product_title: "Acer Aspire Lite",
-          condition: "New",
+
+      t480: {
+        selected_model: {
+          id: "t480",
+          product_title: "Lenovo ThinkPad T480 Refurbished",
+          brand_name: "NewJaisa",
+          our_price: 23999,
           category: "business",
-          price: 29999,
           specs: {
-            processor: "Intel Core i3 12th Gen",
+            processor: "Intel Core i5 8th Gen",
             ram: "8 GB",
             storage: "512 GB SSD",
-            display: "15.6 inch FHD",
-            gpu: "Integrated"
+            display: "14 inch FHD",
+            gpu: "Intel UHD Graphics",
+            os: "Windows 11 Pro"
           }
         },
-        {
-          id: "lenovo-v15",
-          product_title: "Lenovo V15",
-          condition: "New",
-          category: "business",
-          price: 28999,
+        new_laptop_candidates: [
+          {
+            id: "acer-aspire-3",
+            product_title: "Acer Aspire 3",
+            condition: "New",
+            category: "business",
+            price: 25999,
+            specs: {
+              processor: "Intel Core i3 11th Gen",
+              ram: "8 GB",
+              storage: "256 GB SSD",
+              display: "15.6 inch FHD",
+              gpu: "Integrated"
+            }
+          },
+          {
+            id: "hp-14s",
+            product_title: "HP 14s",
+            condition: "New",
+            category: "business",
+            price: 26999,
+            specs: {
+              processor: "Intel Core i3 11th Gen",
+              ram: "8 GB",
+              storage: "256 GB SSD",
+              display: "14 inch FHD",
+              gpu: "Integrated"
+            }
+          },
+          {
+            id: "ideapad-slim-3",
+            product_title: "Lenovo IdeaPad Slim 3",
+            condition: "New",
+            category: "business",
+            price: 28999,
+            specs: {
+              processor: "Ryzen 3",
+              ram: "8 GB",
+              storage: "512 GB SSD",
+              display: "15.6 inch FHD",
+              gpu: "Integrated"
+            }
+          },
+          {
+            id: "asus-vivobook-14",
+            product_title: "ASUS Vivobook 14",
+            condition: "New",
+            category: "business",
+            price: 29999,
+            specs: {
+              processor: "Intel Core i3 12th Gen",
+              ram: "8 GB",
+              storage: "512 GB SSD",
+              display: "14 inch FHD",
+              gpu: "Integrated"
+            }
+          }
+        ]
+      },
+
+      gamingg15: {
+        selected_model: {
+          id: "gamingg15",
+          product_title: "Dell G15 Gaming Laptop Refurbished",
+          brand_name: "NewJaisa",
+          our_price: 52999,
+          category: "gaming",
           specs: {
-            processor: "Intel Core i3 11th Gen",
-            ram: "8 GB",
+            processor: "Intel Core i5 12th Gen",
+            ram: "16 GB",
             storage: "512 GB SSD",
-            display: "15.6 inch FHD",
-            gpu: "Integrated"
+            display: "15.6 inch FHD 120Hz",
+            gpu: "NVIDIA RTX 3050",
+            os: "Windows 11"
           }
         },
-        {
-          id: "hp-15",
-          product_title: "HP 15",
-          condition: "New",
-          category: "business",
-          price: 30999,
-          specs: {
-            processor: "Intel Core i3 12th Gen",
-            ram: "8 GB",
-            storage: "256 GB SSD",
-            display: "15.6 inch FHD",
-            gpu: "Integrated"
+        new_laptop_candidates: [
+          {
+            id: "msi-thin",
+            product_title: "MSI Thin",
+            condition: "New",
+            category: "gaming",
+            price: 57999,
+            specs: {
+              processor: "Intel Core i5 11th Gen",
+              ram: "8 GB",
+              storage: "512 GB SSD",
+              display: "15.6 inch FHD",
+              gpu: "GTX 1650"
+            }
+          },
+          {
+            id: "asus-tuf-entry",
+            product_title: "ASUS TUF Entry Variant",
+            condition: "New",
+            category: "gaming",
+            price: 59999,
+            specs: {
+              processor: "Ryzen 5",
+              ram: "8 GB",
+              storage: "512 GB SSD",
+              display: "15.6 inch FHD",
+              gpu: "RTX 2050"
+            }
+          },
+          {
+            id: "hp-victus-entry",
+            product_title: "HP Victus Entry Variant",
+            condition: "New",
+            category: "gaming",
+            price: 61999,
+            specs: {
+              processor: "Intel Core i5 12th Gen",
+              ram: "8 GB",
+              storage: "512 GB SSD",
+              display: "15.6 inch FHD",
+              gpu: "RTX 2050"
+            }
+          },
+          {
+            id: "lenovo-loq-entry",
+            product_title: "Lenovo LOQ Entry Variant",
+            condition: "New",
+            category: "gaming",
+            price: 63999,
+            specs: {
+              processor: "Intel Core i5 12th Gen",
+              ram: "8 GB",
+              storage: "512 GB SSD",
+              display: "15.6 inch FHD",
+              gpu: "RTX 2050"
+            }
           }
-        },
-        {
-          id: "asus-vivobook-go",
-          product_title: "ASUS Vivobook Go",
-          condition: "New",
-          category: "business",
-          price: 31999,
-          specs: {
-            processor: "Ryzen 3",
-            ram: "8 GB",
-            storage: "512 GB SSD",
-            display: "15.6 inch FHD",
-            gpu: "Integrated"
-          }
-        }
-      ]
+        ]
+      }
     };
 
     function formatPrice(v) {
@@ -455,9 +631,17 @@
       });
     }
 
+    const select = document.getElementById("modelSelect");
+    Object.entries(DEMO_PAYLOADS).forEach(([key, payload]) => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = payload.selected_model.product_title;
+      select.appendChild(option);
+    });
+
     async function loadWidget() {
       try {
-        const payload = window.NJ_WIDGET_PAYLOAD;
+        const payload = DEMO_PAYLOADS[select.value];
         const model = payload.selected_model;
 
         const res = await fetch("/api/compare", {
@@ -483,7 +667,7 @@
         document.getElementById("bannerMain").textContent =
           ai.banner_main || "💰 Better specs at a smarter price";
         document.getElementById("bannerSub").innerHTML =
-          `<small>${ai.banner_sub || "Refurbished business laptops often beat similarly priced new entry-level models."}</small>`;
+          `<small>${ai.banner_sub || "Refurbished laptops often beat similarly priced new entry-level models."}</small>`;
 
         fillList("newjaisaList", ai.why_buy_from_newjaisa);
         fillList("userList", ai.best_for_users);
@@ -535,6 +719,8 @@
       }
     }
 
+    select.value = "dell7420";
+    select.addEventListener("change", loadWidget);
     loadWidget();
   </script>
 </body>
