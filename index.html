@@ -177,10 +177,6 @@
       white-space: nowrap;
     }
 
-    .refurb-row {
-      background: #f0fdf4;
-    }
-
     .score {
       display: inline-block;
       padding: 6px 10px;
@@ -339,6 +335,49 @@
       }
     }
 
+    .compare-label {
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 700;
+      width: 180px;
+      min-width: 180px;
+    }
+
+    .compare-model {
+      font-weight: 800;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .compare-refurb {
+      background: #f0fdf4;
+    }
+
+    .compare-cell {
+      min-width: 190px;
+    }
+
+    .compare-price {
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .compare-verdict {
+      line-height: 1.5;
+    }
+
+    .typing-word {
+      display: inline-block;
+      opacity: 0;
+      animation: wordFade 0.25s forwards;
+    }
+
+    @keyframes wordFade {
+      to {
+        opacity: 1;
+      }
+    }
+
     @media (max-width: 950px) {
       .grid, .alt-grid {
         grid-template-columns: 1fr;
@@ -378,19 +417,6 @@
 
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Option</th>
-              <th>Condition</th>
-              <th>Processor</th>
-              <th>RAM</th>
-              <th>Storage</th>
-              <th>Display / GPU</th>
-              <th>Price</th>
-              <th>Value Score</th>
-              <th>Verdict</th>
-            </tr>
-          </thead>
           <tbody id="comparisonTableBody"></tbody>
         </table>
       </div>
@@ -564,19 +590,63 @@
       });
     }
 
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function typeWords(element, text, delay = 90) {
+      element.innerHTML = "";
+      const words = text.split(" ");
+
+      for (let i = 0; i < words.length; i++) {
+        const span = document.createElement("span");
+        span.className = "typing-word";
+        span.textContent = words[i] + (i < words.length - 1 ? " " : "");
+        element.appendChild(span);
+        await sleep(delay);
+      }
+    }
+
+    async function playLoadingSequence() {
+      const statusEl = document.getElementById("statusLine");
+      statusEl.classList.remove("typing");
+
+      const steps = [
+        "Searching similar new laptops in the same category.",
+        "Checking laptops in a similar price range.",
+        "Comparing processor, RAM, storage and graphics.",
+        "Calculating value scores and buyer fit.",
+        "Preparing the final comparison table."
+      ];
+
+      for (const step of steps) {
+        await typeWords(statusEl, step, 70);
+        await sleep(450);
+      }
+    }
+
     function setLoadingState() {
       document.getElementById("bannerMain").textContent = "💰 Searching similar new laptops...";
       document.getElementById("bannerSub").innerHTML = "<small>Finding same-category competitors in the same price band</small>";
       document.getElementById("comparisonHeading").textContent = "Building comparison...";
       document.getElementById("comparisonChip").textContent = "Searching";
-      document.getElementById("statusLine").textContent = "Searching similar laptops...";
-      document.getElementById("statusLine").classList.add("typing");
+      document.getElementById("statusLine").textContent = "";
 
       document.getElementById("comparisonTableBody").innerHTML = `
-        <tr class="loading-row"><td colspan="9">Loading</td></tr>
-        <tr class="loading-row"><td colspan="9">Loading</td></tr>
-        <tr class="loading-row"><td colspan="9">Loading</td></tr>
-        <tr class="loading-row"><td colspan="9">Loading</td></tr>
+        <tr>
+          <td class="compare-label loading">Feature</td>
+          <td class="loading">Loading</td>
+          <td class="loading">Loading</td>
+          <td class="loading">Loading</td>
+          <td class="loading">Loading</td>
+        </tr>
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
       `;
 
       document.getElementById("newjaisaList").innerHTML = `
@@ -606,7 +676,6 @@
       document.getElementById("bannerMain").textContent = "Unable to load value comparison";
       document.getElementById("bannerSub").innerHTML = `<small>${message}</small>`;
       document.getElementById("statusLine").textContent = message;
-      document.getElementById("statusLine").classList.remove("typing");
       document.getElementById("comparisonTableBody").innerHTML = "";
       document.getElementById("altGrid").innerHTML = `
         <div class="alt-card">
@@ -614,24 +683,6 @@
           <div class="alt-reason">${message}</div>
         </div>
       `;
-    }
-
-    async function animateProgress() {
-      const steps = [
-        "Searching similar laptops...",
-        "Finding competitors in same category...",
-        "Checking nearby price range...",
-        "Comparing RAM, storage and GPU...",
-        "Calculating value score...",
-        "Preparing final comparison..."
-      ];
-
-      const statusEl = document.getElementById("statusLine");
-
-      for (const step of steps) {
-        statusEl.textContent = step;
-        await new Promise(resolve => setTimeout(resolve, 650));
-      }
     }
 
     const select = document.getElementById("modelSelect");
@@ -645,7 +696,7 @@
     async function loadWidget() {
       try {
         setLoadingState();
-        const progressPromise = animateProgress();
+        const progressPromise = playLoadingSequence();
 
         const payload = DEMO_PAYLOADS[select.value];
         const model = payload.selected_model;
@@ -675,8 +726,11 @@
         document.getElementById("bannerSub").innerHTML =
           `<small>${ai.banner_sub || "Refurbished laptops often beat similarly priced new entry-level models."}</small>`;
 
-        document.getElementById("statusLine").textContent = "Competitors found and comparison generated.";
-        document.getElementById("statusLine").classList.remove("typing");
+        await typeWords(
+          document.getElementById("statusLine"),
+          "Competitors found and comparison generated successfully.",
+          55
+        );
 
         fillList("newjaisaList", ai.why_buy_from_newjaisa);
         fillList("userList", ai.best_for_users);
@@ -686,38 +740,86 @@
         document.getElementById("ctaText").textContent = ai.cta_text;
         document.getElementById("ctaBtn").textContent = ai.cta_button;
 
+        const candidates = data.comparison_candidates || [];
+        const allModels = [
+          {
+            product_title: model.product_title,
+            condition: "Refurbished",
+            specs: model.specs,
+            price: model.our_price,
+            value_score: ai.refurb_value_score || 9,
+            verdict: ai.refurb_verdict || "Better overall value",
+            isRefurb: true
+          },
+          ...candidates.map((item, idx) => ({
+            product_title: item.product_title,
+            condition: item.condition || "New",
+            specs: item.specs || {},
+            price: item.price,
+            value_score: (ai.new_value_scores && ai.new_value_scores[idx]) || 6,
+            verdict: (ai.new_verdicts && ai.new_verdicts[idx]) || "Higher price for lower specs",
+            isRefurb: false
+          }))
+        ];
+
+        const rows = [
+          {
+            label: "Model",
+            values: allModels.map(m => `<div class="compare-model">${m.product_title}</div>`)
+          },
+          {
+            label: "Condition",
+            values: allModels.map(m => m.condition)
+          },
+          {
+            label: "Processor",
+            values: allModels.map(m => m.specs.processor || "-")
+          },
+          {
+            label: "RAM",
+            values: allModels.map(m => m.specs.ram || "-")
+          },
+          {
+            label: "Storage",
+            values: allModels.map(m => m.specs.storage || "-")
+          },
+          {
+            label: "Display / GPU",
+            values: allModels.map(m => `${m.specs.display || "-"} / ${m.specs.gpu || "-"}`)
+          },
+          {
+            label: "Price",
+            values: allModels.map(m => `<span class="compare-price">${formatPrice(m.price)}</span>`)
+          },
+          {
+            label: "Value Score",
+            values: allModels.map(m => scoreBadge(m.value_score, m.isRefurb))
+          },
+          {
+            label: "Verdict",
+            values: allModels.map(m => `<div class="compare-verdict">${m.verdict}</div>`)
+          }
+        ];
+
         const tbody = document.getElementById("comparisonTableBody");
         tbody.innerHTML = "";
 
-        const refurbRow = document.createElement("tr");
-        refurbRow.className = "refurb-row";
-        refurbRow.innerHTML = `
-          <td><strong>${model.product_title}</strong></td>
-          <td>Refurbished</td>
-          <td>${model.specs.processor}</td>
-          <td>${model.specs.ram}</td>
-          <td>${model.specs.storage}</td>
-          <td>${model.specs.display} / ${model.specs.gpu}</td>
-          <td><strong>${formatPrice(model.our_price)}</strong></td>
-          <td>${scoreBadge(ai.refurb_value_score || 9, true)}</td>
-          <td>${ai.refurb_verdict || "Better overall value"}</td>
-        `;
-        tbody.appendChild(refurbRow);
+        rows.forEach((row) => {
+          const tr = document.createElement("tr");
 
-        (data.comparison_candidates || []).forEach((item, idx) => {
-          const newRow = document.createElement("tr");
-          newRow.innerHTML = `
-            <td><strong>${item.product_title}</strong></td>
-            <td>${item.condition || "New"}</td>
-            <td>${item.specs.processor || "-"}</td>
-            <td>${item.specs.ram || "-"}</td>
-            <td>${item.specs.storage || "-"}</td>
-            <td>${item.specs.display || "-"} / ${item.specs.gpu || "-"}</td>
-            <td>${formatPrice(item.price)}</td>
-            <td>${scoreBadge((ai.new_value_scores && ai.new_value_scores[idx]) || 6, false)}</td>
-            <td>${(ai.new_verdicts && ai.new_verdicts[idx]) || "Higher price for lower specs"}</td>
-          `;
-          tbody.appendChild(newRow);
+          let html = `<td class="compare-label">${row.label}</td>`;
+
+          row.values.forEach((value, idx) => {
+            const modelObj = allModels[idx];
+            html += `
+              <td class="compare-cell ${modelObj.isRefurb ? "compare-refurb" : ""}">
+                ${value}
+              </td>
+            `;
+          });
+
+          tr.innerHTML = html;
+          tbody.appendChild(tr);
         });
 
         renderAlternatives(data.alternatives || []);

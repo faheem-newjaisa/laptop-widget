@@ -114,7 +114,6 @@ Return valid JSON only in this exact structure:
       ? competitorParsed.candidates
       : [];
 
-    // Safety filters
     candidates = candidates.filter(item => {
       if (!item || !item.product_title || !item.specs || !item.price) return false;
       const itemCategory = String(item.category || "").toLowerCase();
@@ -130,6 +129,47 @@ Return valid JSON only in this exact structure:
       candidates = candidates.filter(item => {
         const p = Number(item.price || 0);
         return p >= Math.round(ourPrice * 0.9) && p <= Math.round(ourPrice * 1.35);
+      });
+    }
+
+    if (!candidates.length) {
+      return res.status(200).json({
+        selected_model,
+        comparison_candidates: [],
+        ai: {
+          banner_main: "No close market matches found",
+          banner_sub: "The selected laptop could not be matched reliably with similar new laptops right now.",
+          price_comparison: {
+            comparison_note: "Limited comparison data"
+          },
+          why_buy_from_newjaisa: [
+            "72-point quality check",
+            "1-year warranty included",
+            "14-day replacement support",
+            "Lifetime buyback value"
+          ],
+          best_for_users: [
+            "Value-focused buyers",
+            "Students",
+            "Office users",
+            "Everyday multitaskers"
+          ],
+          advantages: [
+            "Better price-to-spec value",
+            "Refurbished quality checks",
+            "Warranty-backed purchase",
+            "Useful daily performance"
+          ],
+          refurb_value_score: 8,
+          refurb_verdict: "Strong value option in its budget.",
+          new_value_scores: [],
+          new_verdicts: [],
+          alternatives: [],
+          cta_title: "Buy smarter with NewJaisa",
+          cta_text: "Choose a refurbished laptop that offers stronger value at this budget.",
+          cta_button: "Buy Now"
+        },
+        alternatives: []
       });
     }
 
