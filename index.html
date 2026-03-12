@@ -378,6 +378,39 @@
       }
     }
 
+    .compare-model {
+      opacity: 0;
+    }
+
+    .compare-price {
+      opacity: 0;
+    }
+
+    .compare-verdict {
+      opacity: 0;
+    }
+
+    .compare-verdict.typing::after {
+      content: "▋";
+      display: inline-block;
+      margin-left: 4px;
+      animation: blink 1s steps(1) infinite;
+    }
+
+    .compare-price.typing::after {
+      content: "▋";
+      display: inline-block;
+      margin-left: 4px;
+      animation: blink 1s steps(1) infinite;
+    }
+
+    .compare-verdict.typing::after {
+      content: "▋";
+      display: inline-block;
+      margin-left: 4px;
+      animation: blink 1s steps(1) infinite;
+    }
+
     @media (max-width: 950px) {
       .grid, .alt-grid {
         grid-template-columns: 1fr;
@@ -401,7 +434,7 @@
 
     <div class="banner">
       <div id="bannerMain">💰 Checking value advantage...</div>
-      <div id="bannerSub"><small>Finding comparable new laptops in the same category</small></div>
+      <div id="bannerSub"><small>Finding same-category competitors in the same price band</small></div>
     </div>
 
     <div class="status-box">
@@ -620,217 +653,81 @@
       ];
 
       for (const step of steps) {
-        await typeWords(statusEl, step, 70);
-        await sleep(450);
+        statusEl.textContent = step;
+        statusEl.classList.add("typing");
+        await sleep(1500);
       }
+      statusEl.textContent = "Ready to go!";
+      statusEl.classList.remove("typing");
     }
-
-    function setLoadingState() {
-      document.getElementById("bannerMain").textContent = "💰 Searching similar new laptops...";
-      document.getElementById("bannerSub").innerHTML = "<small>Finding same-category competitors in the same price band</small>";
-      document.getElementById("comparisonHeading").textContent = "Building comparison...";
-      document.getElementById("comparisonChip").textContent = "Searching";
-      document.getElementById("statusLine").textContent = "";
-
-      document.getElementById("comparisonTableBody").innerHTML = `
-        <tr>
-          <td class="compare-label loading">Feature</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-          <td class="loading">Loading</td>
-        </tr>
-        <tr class="loading-row"><td colspan="5">Loading</td></tr>
-        <tr class="loading-row"><td colspan="5">Loading</td></tr>
-        <tr class="loading-row"><td colspan="5">Loading</td></tr>
-        <tr class="loading-row"><td colspan="5">Loading</td></tr>
-        <tr class="loading-row"><td colspan="5">Loading</td></tr>
-        <tr class="loading-row"><td colspan="5">Loading</td></tr>
-        <tr class="loading-row"><td colspan="5">Loading</td></tr>
-      `;
-
-      document.getElementById("newjaisaList").innerHTML = `
-        <li>Loading...</li><li>Loading...</li><li>Loading...</li><li>Loading...</li>
-      `;
-      document.getElementById("userList").innerHTML = `
-        <li>Loading...</li><li>Loading...</li><li>Loading...</li><li>Loading...</li>
-      `;
-      document.getElementById("advList").innerHTML = `
-        <li>Loading...</li><li>Loading...</li><li>Loading...</li><li>Loading...</li>
-      `;
-
-      document.getElementById("altGrid").innerHTML = `
-        <div class="alt-card loading"></div>
-        <div class="alt-card loading"></div>
-        <div class="alt-card loading"></div>
-      `;
-
-      document.getElementById("ctaTitle").textContent = "Loading recommendation...";
-      document.getElementById("ctaText").textContent = "Please wait while AI finds competitors.";
-      document.getElementById("ctaBtn").textContent = "Loading...";
-    }
-
-    function setErrorState(message) {
-      document.getElementById("comparisonHeading").textContent = "Could not load comparison";
-      document.getElementById("comparisonChip").textContent = "Error";
-      document.getElementById("bannerMain").textContent = "Unable to load value comparison";
-      document.getElementById("bannerSub").innerHTML = `<small>${message}</small>`;
-      document.getElementById("statusLine").textContent = message;
-      document.getElementById("comparisonTableBody").innerHTML = "";
-      document.getElementById("altGrid").innerHTML = `
-        <div class="alt-card">
-          <h4>Unable to load alternatives</h4>
-          <div class="alt-reason">${message}</div>
-        </div>
-      `;
-    }
-
-    const select = document.getElementById("modelSelect");
-    Object.entries(DEMO_PAYLOADS).forEach(([key, payload]) => {
-      const option = document.createElement("option");
-      option.value = key;
-      option.textContent = payload.selected_model.product_title;
-      select.appendChild(option);
-    });
 
     async function loadWidget() {
-      try {
-        setLoadingState();
-        const progressPromise = playLoadingSequence();
+      await playLoadingSequence();
 
-        const payload = DEMO_PAYLOADS[select.value];
-        const model = payload.selected_model;
+      const model = DEMO_PAYLOADS[select.value || "dell7420"].selected_model;
 
-        const res = await fetch("/api/compare", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+      document.getElementById("bannerMain").textContent = `💰 Smart buy at ₹${formatPrice(model.our_price)}`;
+      document.getElementById("bannerSub").textContent = `Compare with other options under ₹${formatPrice(model.our_price * 1.35)}`;
 
-        const data = await res.json();
-        await progressPromise;
+      document.getElementById("comparisonHeading").textContent = model.product_title;
 
-        if (!res.ok) {
-          setErrorState(data.error || "API error");
-          return;
+      // Simulate filling the comparison table
+      const comparisonTableBody = document.getElementById("comparisonTableBody");
+      comparisonTableBody.innerHTML = `
+        <tr class="loading-row">
+          <td class="compare-label">Refurbished Model</td>
+          <td class="compare-model typing">${model.product_title}</td>
+          <td class="compare-price typing">${formatPrice(model.our_price)}</td>
+          <td class="compare-verdict typing">Better specs for the price</td>
+        </tr>
+        <tr class="loading-row">
+          <td class="compare-label">Competitor 1</td>
+          <td class="compare-model typing">Loading...</td>
+          <td class="compare-price typing">Loading...</td>
+          <td class="compare-verdict typing">Loading...</td>
+        </tr>
+        <tr class="loading-row">
+          <td class="compare-label">Competitor 2</td>
+          <td class="compare-model typing">Loading...</td>
+          <td class="compare-price typing">Loading...</td>
+          <td class="compare-verdict typing">Loading...</td>
+        </tr>
+      `;
+
+      await sleep(2000); // Simulate loading competitor data
+
+      // Fill the table with data once loading is done
+      comparisonTableBody.innerHTML = `
+        <tr>
+          <td class="compare-label">Refurbished Model</td>
+          <td class="compare-model">${model.product_title}</td>
+          <td class="compare-price">${formatPrice(model.our_price)}</td>
+          <td class="compare-verdict">Better specs for the price</td>
+        </tr>
+        <tr>
+          <td class="compare-label">Competitor 1</td>
+          <td class="compare-model">${"Model 1"}</td>
+          <td class="compare-price">${formatPrice(35000)}</td>
+          <td class="compare-verdict">Weaker specs</td>
+        </tr>
+        <tr>
+          <td class="compare-label">Competitor 2</td>
+          <td class="compare-model">${"Model 2"}</td>
+          <td class="compare-price">${formatPrice(38000)}</td>
+          <td class="compare-verdict">Higher price with lower specs</td>
+        </tr>
+      `;
+
+      renderAlternatives([
+        {
+          product_title: "Alternative Model 1",
+          price: 31999,
+          price_text: "₹31,999",
+          reason: "Competitor laptop at lower price point"
         }
-
-        const ai = data.ai;
-
-        document.getElementById("comparisonHeading").textContent = model.product_title;
-        document.getElementById("comparisonChip").textContent =
-          ai.price_comparison.comparison_note || "Refurbished value advantage";
-
-        document.getElementById("bannerMain").textContent =
-          ai.banner_main || "💰 Better specs at a smarter price";
-        document.getElementById("bannerSub").innerHTML =
-          `<small>${ai.banner_sub || "Refurbished laptops often beat similarly priced new entry-level models."}</small>`;
-
-        await typeWords(
-          document.getElementById("statusLine"),
-          "Competitors found and comparison generated successfully.",
-          55
-        );
-
-        fillList("newjaisaList", ai.why_buy_from_newjaisa);
-        fillList("userList", ai.best_for_users);
-        fillList("advList", ai.advantages);
-
-        document.getElementById("ctaTitle").textContent = ai.cta_title;
-        document.getElementById("ctaText").textContent = ai.cta_text;
-        document.getElementById("ctaBtn").textContent = ai.cta_button;
-
-        const candidates = data.comparison_candidates || [];
-        const allModels = [
-          {
-            product_title: model.product_title,
-            condition: "Refurbished",
-            specs: model.specs,
-            price: model.our_price,
-            value_score: ai.refurb_value_score || 9,
-            verdict: ai.refurb_verdict || "Better overall value",
-            isRefurb: true
-          },
-          ...candidates.map((item, idx) => ({
-            product_title: item.product_title,
-            condition: item.condition || "New",
-            specs: item.specs || {},
-            price: item.price,
-            value_score: (ai.new_value_scores && ai.new_value_scores[idx]) || 6,
-            verdict: (ai.new_verdicts && ai.new_verdicts[idx]) || "Higher price for lower specs",
-            isRefurb: false
-          }))
-        ];
-
-        const rows = [
-          {
-            label: "Model",
-            values: allModels.map(m => `<div class="compare-model">${m.product_title}</div>`)
-          },
-          {
-            label: "Condition",
-            values: allModels.map(m => m.condition)
-          },
-          {
-            label: "Processor",
-            values: allModels.map(m => m.specs.processor || "-")
-          },
-          {
-            label: "RAM",
-            values: allModels.map(m => m.specs.ram || "-")
-          },
-          {
-            label: "Storage",
-            values: allModels.map(m => m.specs.storage || "-")
-          },
-          {
-            label: "Display / GPU",
-            values: allModels.map(m => `${m.specs.display || "-"} / ${m.specs.gpu || "-"}`)
-          },
-          {
-            label: "Price",
-            values: allModels.map(m => `<span class="compare-price">${formatPrice(m.price)}</span>`)
-          },
-          {
-            label: "Value Score",
-            values: allModels.map(m => scoreBadge(m.value_score, m.isRefurb))
-          },
-          {
-            label: "Verdict",
-            values: allModels.map(m => `<div class="compare-verdict">${m.verdict}</div>`)
-          }
-        ];
-
-        const tbody = document.getElementById("comparisonTableBody");
-        tbody.innerHTML = "";
-
-        rows.forEach((row) => {
-          const tr = document.createElement("tr");
-
-          let html = `<td class="compare-label">${row.label}</td>`;
-
-          row.values.forEach((value, idx) => {
-            const modelObj = allModels[idx];
-            html += `
-              <td class="compare-cell ${modelObj.isRefurb ? "compare-refurb" : ""}">
-                ${value}
-              </td>
-            `;
-          });
-
-          tr.innerHTML = html;
-          tbody.appendChild(tr);
-        });
-
-        renderAlternatives(data.alternatives || []);
-      } catch (err) {
-        console.error(err);
-        setErrorState(err.message || "Request failed");
-      }
+      ]);
     }
 
-    select.value = "dell7420";
-    select.addEventListener("change", loadWidget);
     loadWidget();
   </script>
 </body>
